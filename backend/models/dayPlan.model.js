@@ -14,7 +14,11 @@ const itemSchema = new mongoose.Schema(
     note: String,
     caution: String,
     transport: String,
-    cost: Number,
+    // Chuyển cost sang price_range
+    price_range: {
+      min: Number, // ví dụ 100000
+      max: Number, // ví dụ 500000, null nếu không giới hạn
+    },
     sort_order: Number,
   },
   { _id: true }
