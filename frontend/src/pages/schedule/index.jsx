@@ -3,6 +3,7 @@ import {
   Avatar,
   Box,
   Button,
+  decomposeColor,
   Divider,
   FormControl,
   FormControlLabel,
@@ -34,8 +35,8 @@ const mockPlans = [
     title: "Thăm Hồ Gươm + Coffee sáng",
     price: "0đ - 150.000đ",
     age: "Từ 5 tuổi",
-    note: "Đi bộ ngắm phố cổ, nhâm nhi cà phê vỉa hè",
-    city: "Hà Nội",
+    description: "Đi bộ ngắm phố cổ, nhâm nhi cà phê vỉa hè",
+    province: "Hà Nội",
     area: "Hoàn Kiếm",
   },
   {
@@ -47,8 +48,8 @@ const mockPlans = [
     title: "Chạy bộ Công viên Thống Nhất",
     price: "Miễn phí",
     age: "Từ 12 tuổi",
-    note: "Tham gia lớp zumba, mượn xe đạp công viên",
-    city: "Hà Nội",
+    description: "Tham gia lớp zumba, mượn xe đạp công viên",
+    province: "Hà Nội",
     area: "Hai Bà Trưng",
   },
   {
@@ -60,8 +61,8 @@ const mockPlans = [
     title: "Tản bộ Phố Cổ + Bảo tàng",
     price: "100.000đ - 250.000đ",
     age: "Từ 8 tuổi",
-    note: "Ghé Bảo tàng Dân tộc học chụp hình gia đình",
-    city: "Hà Nội",
+    description: "Ghé Bảo tàng Dân tộc học chụp hình gia đình",
+    province: "Hà Nội",
     area: "Hoàn Kiếm",
   },
   {
@@ -73,8 +74,8 @@ const mockPlans = [
     title: "Thư giãn phố nghệ thuật",
     price: "120.000đ - 300.000đ",
     age: "Từ 15 tuổi",
-    note: "Ghé triển lãm, uống trà sách tại toà nhà cổ",
-    city: "Hà Nội",
+    description: "Ghé triển lãm, uống trà sách tại toà nhà cổ",
+    province: "Hà Nội",
     area: "Ba Đình",
   },
   {
@@ -86,8 +87,8 @@ const mockPlans = [
     title: "Ẩm thực đêm Tống Duy Tân",
     price: "80.000đ - 220.000đ",
     age: "Từ 18 tuổi",
-    note: "Ăn nhậu nhẹ, thử trà chanh",
-    city: "Hà Nội",
+    description: "Ăn nhậu nhẹ, thử trà chanh",
+    province: "Hà Nội",
     area: "Hoàn Kiếm",
   },
   {
@@ -99,12 +100,12 @@ const mockPlans = [
     title: "Góc chill West Lake",
     price: "150.000đ",
     age: "Từ 7 tuổi",
-    note: "Check-in cầu Thê Húc, ăn kem Bạch Đằng",
-    city: "Hà Nội",
+    description: "Check-in cầu Thê Húc, ăn kem Bạch Đằng",
+    province: "Hà Nội",
     area: "Tây Hồ",
   },
 ];
-
+//localhost:3000/dayplay/list
 export default function Schedule() {
   const plans = useMemo(() => mockPlans.slice(0, 6), []);
 
@@ -202,7 +203,7 @@ export default function Schedule() {
                         {plan.title}
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#374151" }}>
-                        {plan.note}
+                        {plan.description_description_description_description}
                       </Typography>
                       <Stack direction="column" spacing={0.3} sx={{ pt: 1 }}>
                         <Typography variant="caption" sx={{ color: "#6b7280" }}>
@@ -214,7 +215,7 @@ export default function Schedule() {
                               color: "#1976d2",
                             }}
                           />
-                          {plan.city} · {plan.area}
+                          {plan.province} · {plan.area}
                         </Typography>
                         <Typography variant="caption" sx={{ color: "#6b7280" }}>
                           Giá: {plan.price}
