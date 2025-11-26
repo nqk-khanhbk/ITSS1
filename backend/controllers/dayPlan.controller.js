@@ -2,7 +2,7 @@ const DayPlan = require("../models/dayPlan.model");
 const Place = require("../models/place.model");
 const Like = require("../models/like.model");
 
-// GET /api/public/day-plans - Lấy danh sách day plans công khai với thông tin chi tiết
+// GET /api/day-plans - Lấy danh sách day plans với thông tin chi tiết, tìm kiếm và lọc
 module.exports.list = async (req, res) => {
   try {
     const {
@@ -11,16 +11,17 @@ module.exports.list = async (req, res) => {
       search,
       tags,
       province,
-      district,
+      area,
       price_min,
       price_max,
       age_min,
       age_max,
     } = req.query;
 
-    // Build filter
+    // Build base filter
     const filter = {};
 
+    // Search by title or description
     if (search) {
       filter.$or = [
         { title: new RegExp(search, "i") },
@@ -28,6 +29,7 @@ module.exports.list = async (req, res) => {
       ];
     }
 
+    // Filter by tags
     if (tags) {
       const tagArray = Array.isArray(tags) ? tags : tags.split(",");
       filter.tags = { $in: tagArray };
@@ -147,39 +149,78 @@ module.exports.list = async (req, res) => {
           }
         }
 
-        // Apply filters if provided
+        // Apply filters - Filter by province (city)
         let shouldInclude = true;
 
-        if (province && !provinces.has(province)) {
-          shouldInclude = false;
+        if (province) {
+          const provinceSearch = new RegExp(province, "i");
+          const hasMatchingProvince = Array.from(provinces).some((p) =>
+            provinceSearch.test(p)
+          );
+          if (!hasMatchingProvince) {
+            shouldInclude = false;
+          }
         }
 
-        if (district && !areas.has(district)) {
-          shouldInclude = false;
+        // Filter by area
+        if (area && shouldInclude) {
+          const areaSearch = new RegExp(area, "i");
+          const hasMatchingArea = Array.from(areas).some((a) =>
+            areaSearch.test(a)
+          );
+          if (!hasMatchingArea) {
+            shouldInclude = false;
+          }
         }
 
-        if (price_min && totalMaxPrice < parseInt(price_min)) {
-          shouldInclude = false;
+        // Filter by price range - tham số phải nằm trong khoảng price của dayPlan
+        if ((price_min || price_max) && shouldInclude) {
+          const minPrice = price_min ? parseInt(price_min) : 0;
+          const maxPrice = price_max ? parseInt(price_max) : Infinity;
+
+          // Check if the requested price range [minPrice, maxPrice] fits within dayPlan's price range [totalMinPrice, totalMaxPrice]
+          if (hasPrice) {
+            // Requested range must be within dayPlan's range
+            if (minPrice < totalMinPrice || maxPrice > totalMaxPrice) {
+              shouldInclude = false;
+            }
+          } else {
+            // If dayPlan is free (no price), only accept if minPrice is 0
+            if (minPrice > 0) {
+              shouldInclude = false;
+            }
+          }
         }
 
-        if (price_max && totalMinPrice > parseInt(price_max)) {
-          shouldInclude = false;
-        }
+        // Filter by age limit - tham số phải nằm trong giao của các age_limit
+        if ((age_min !== undefined || age_max !== undefined) && shouldInclude) {
+          const minAge = age_min !== undefined ? parseInt(age_min) : 0;
+          const maxAge = age_max !== undefined ? parseInt(age_max) : Infinity;
 
-        if (
-          age_min !== undefined &&
-          ageMax !== null &&
-          ageMax < parseInt(age_min)
-        ) {
-          shouldInclude = false;
-        }
-
-        if (
-          age_max !== undefined &&
-          ageMin !== null &&
-          ageMin > parseInt(age_max)
-        ) {
-          shouldInclude = false;
+          // Check if the requested age range [minAge, maxAge] fits within the intersection [ageMin, ageMax]
+          if (ageMin !== null && ageMax !== null) {
+            // There is an age intersection
+            if (ageMax < ageMin) {
+              // No valid intersection (incompatible)
+              shouldInclude = false;
+            } else {
+              // Check if requested range fits within intersection
+              if (minAge < ageMin || maxAge > ageMax) {
+                shouldInclude = false;
+              }
+            }
+          } else if (ageMin !== null) {
+            // Only lower bound exists
+            if (minAge < ageMin) {
+              shouldInclude = false;
+            }
+          } else if (ageMax !== null) {
+            // Only upper bound exists
+            if (maxAge > ageMax) {
+              shouldInclude = false;
+            }
+          }
+          // If both ageMin and ageMax are null, it means "Mọi lứa tuổi" - always include
         }
 
         if (!shouldInclude) {
@@ -222,7 +263,7 @@ module.exports.list = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Get public day plans error:", err);
+    console.error("Get day plans error:", err);
     return res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };

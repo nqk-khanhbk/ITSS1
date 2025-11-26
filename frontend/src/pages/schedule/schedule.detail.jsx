@@ -46,9 +46,7 @@ const scheduleData = {
   overview: {
     price: "100k-300k",
     time: "8:00-17:00",
-    age: "Từ 4 tuổi trở lên",
-    location: "Hà Nội - Tây Hồ",
-    note: "Thời tiết tốt mới nên đi",
+    age: "Từ 4 tuổi trở lên"
   },
   timeline: [
     {
