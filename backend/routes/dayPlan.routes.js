@@ -10,6 +10,6 @@ const uploadNone = multer().none();
 
 // CRUD routes for day plans
 router.get("/", uploadNone, controllers.list);
-// router.get("/:id", uploadNone, controllers.detail);
+router.get("/:id", uploadNone, controllers.detail);
 
 module.exports = router;
