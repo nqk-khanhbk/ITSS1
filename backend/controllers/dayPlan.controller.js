@@ -173,54 +173,52 @@ module.exports.list = async (req, res) => {
           }
         }
 
-        // Filter by price range - tham số phải nằm trong khoảng price của dayPlan
+        // Filter by price range - khoảng giá của dayPlan phải nằm trong khoảng user yêu cầu
         if ((price_min || price_max) && shouldInclude) {
           const minPrice = price_min ? parseInt(price_min) : 0;
           const maxPrice = price_max ? parseInt(price_max) : Infinity;
 
-          // Check if the requested price range [minPrice, maxPrice] fits within dayPlan's price range [totalMinPrice, totalMaxPrice]
+          // Check if dayPlan's price range [totalMinPrice, totalMaxPrice] fits within requested range [minPrice, maxPrice]
           if (hasPrice) {
-            // Requested range must be within dayPlan's range
-            if (minPrice < totalMinPrice || maxPrice > totalMaxPrice) {
+            // DayPlan's range must be within requested range
+            if (totalMinPrice < minPrice || totalMaxPrice > maxPrice) {
               shouldInclude = false;
             }
           } else {
-            // If dayPlan is free (no price), only accept if minPrice is 0
-            if (minPrice > 0) {
-              shouldInclude = false;
-            }
+            // If dayPlan is free, it fits any budget
+            // Free (0) is always within any price range
           }
         }
 
-        // Filter by age limit - tham số phải nằm trong giao của các age_limit
+        // Filter by age limit - giao tuổi của dayPlan phải nằm trong tuổi user yêu cầu
         if ((age_min !== undefined || age_max !== undefined) && shouldInclude) {
           const minAge = age_min !== undefined ? parseInt(age_min) : 0;
           const maxAge = age_max !== undefined ? parseInt(age_max) : Infinity;
 
-          // Check if the requested age range [minAge, maxAge] fits within the intersection [ageMin, ageMax]
+          // Check if dayPlan's age intersection [ageMin, ageMax] fits within requested range [minAge, maxAge]
           if (ageMin !== null && ageMax !== null) {
             // There is an age intersection
             if (ageMax < ageMin) {
               // No valid intersection (incompatible)
               shouldInclude = false;
             } else {
-              // Check if requested range fits within intersection
-              if (minAge < ageMin || maxAge > ageMax) {
+              // Check if dayPlan's age intersection fits within requested range
+              if (ageMin < minAge || ageMax > maxAge) {
                 shouldInclude = false;
               }
             }
           } else if (ageMin !== null) {
             // Only lower bound exists
-            if (minAge < ageMin) {
+            if (ageMin < minAge) {
               shouldInclude = false;
             }
           } else if (ageMax !== null) {
             // Only upper bound exists
-            if (maxAge > ageMax) {
+            if (ageMax > maxAge) {
               shouldInclude = false;
             }
           }
-          // If both ageMin and ageMax are null, it means "Mọi lứa tuổi" - always include
+          // If both ageMin and ageMax are null, it means "Mọi lứa tuổi" - always include (fits any age range)
         }
 
         if (!shouldInclude) {
