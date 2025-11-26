@@ -24,6 +24,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Schedule() {
   // const plans = useMemo(() => mockPlans.slice(0, 6), []);
@@ -31,14 +32,46 @@ export default function Schedule() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Filter states
+  const [searchText, setSearchText] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
+  const [priceRange, setPriceRange] = useState("all");
+  const [ageRange, setAgeRange] = useState("all");
+
+  // Applied filters (for actual API call)
+  const [appliedFilters, setAppliedFilters] = useState({
+    search: "",
+    province: "",
+    area: "",
+    price_min: null,
+    price_max: null,
+    age_min: null,
+    age_max: null,
+  });
 
   useEffect(() => {
     const fetchDayPlans = async () => {
       console.log("Fetching day plans from API... Page:", page);
       try {
         setLoading(true);
+        
+        // Build query params
+        const params = { page };
+        
+        // Add filters if applied
+        if (appliedFilters.search) params.search = appliedFilters.search;
+        if (appliedFilters.province) params.province = appliedFilters.province;
+        if (appliedFilters.area) params.area = appliedFilters.area;
+        if (appliedFilters.price_min !== null) params.price_min = appliedFilters.price_min;
+        if (appliedFilters.price_max !== null) params.price_max = appliedFilters.price_max;
+        if (appliedFilters.age_min !== null) params.age_min = appliedFilters.age_min;
+        if (appliedFilters.age_max !== null) params.age_max = appliedFilters.age_max;
+
         const response = await axios.get("http://localhost:3000/api/day-plans", {
-          params: { page }
+          params
         });
         setPlansData(response.data?.data ?? []);
         setTotalPages(response.data?.pagination?.totalPages ?? 1);
@@ -51,11 +84,100 @@ export default function Schedule() {
     };
     
     fetchDayPlans();
-  }, [page]);
+  }, [page, appliedFilters]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle filter application
+  const handleApplyFilters = () => {
+    // Convert price range to min/max
+    let price_min = null;
+    let price_max = null;
+    
+    switch (priceRange) {
+      case "free":
+        price_min = 0;
+        price_max = 0;
+        break;
+      case "0-200k":
+        price_min = 0;
+        price_max = 200000;
+        break;
+      case "200k-500k":
+        price_min = 200000;
+        price_max = 500000;
+        break;
+      case "500k-1m":
+        price_min = 500000;
+        price_max = 1000000;
+        break;
+      case "1m+":
+        price_min = 1000000;
+        price_max = null;
+        break;
+      default:
+        break;
+    }
+
+    // Convert age range to min/max
+    let age_min = null;
+    let age_max = null;
+    
+    switch (ageRange) {
+      case "0-5":
+        age_min = 0;
+        age_max = 5;
+        break;
+      case "5-12":
+        age_min = 5;
+        age_max = 12;
+        break;
+      case "12-18":
+        age_min = 12;
+        age_max = 18;
+        break;
+      case "18+":
+        age_min = 18;
+        age_max = null;
+        break;
+      default:
+        break;
+    }
+
+    setAppliedFilters({
+      search: searchText.trim(),
+      province: selectedProvince,
+      area: selectedArea,
+      price_min,
+      price_max,
+      age_min,
+      age_max,
+    });
+
+    // Reset to page 1 when applying filters
+    setPage(1);
+  };
+
+  // Handle reset filters
+  const handleResetFilters = () => {
+    setSearchText("");
+    setSelectedProvince("");
+    setSelectedArea("");
+    setPriceRange("all");
+    setAgeRange("all");
+    setAppliedFilters({
+      search: "",
+      province: "",
+      area: "",
+      price_min: null,
+      price_max: null,
+      age_min: null,
+      age_max: null,
+    });
+    setPage(1);
   };
   
   return (
@@ -197,6 +319,7 @@ export default function Schedule() {
                   >
                     <Button
                       variant="contained"
+                      onClick={() => navigate(`/schedule/${plan.id}`)}
                       sx={{
                         textTransform: "none",
                         borderRadius: 2,
@@ -249,10 +372,17 @@ export default function Schedule() {
                 size="small"
                 placeholder="Nhập tên địa điểm"
                 fullWidth
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleApplyFilters();
+                  }
+                }}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton size="small" edge="end">
+                      <IconButton size="small" edge="end" onClick={handleApplyFilters}>
                         <SearchIcon />
                       </IconButton>
                     </InputAdornment>
@@ -267,8 +397,10 @@ export default function Schedule() {
                 select
                 size="small"
                 label="Tỉnh / Thành phố"
-                defaultValue="Hà Nội"
+                value={selectedProvince}
+                onChange={(e) => setSelectedProvince(e.target.value)}
               >
+                <MenuItem value="">Tất cả</MenuItem>
                 <MenuItem value="Hà Nội">Hà Nội</MenuItem>
                 <MenuItem value="Tp. HCM">Tp. HCM</MenuItem>
                 <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
@@ -277,8 +409,10 @@ export default function Schedule() {
                 select
                 size="small"
                 label="Quận / Huyện"
-                defaultValue="Hoàn Kiếm"
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value)}
               >
+                <MenuItem value="">Tất cả</MenuItem>
                 <MenuItem value="Hoàn Kiếm">Hoàn Kiếm</MenuItem>
                 <MenuItem value="Hai Bà Trưng">Hai Bà Trưng</MenuItem>
                 <MenuItem value="Tây Hồ">Tây Hồ</MenuItem>
@@ -296,7 +430,7 @@ export default function Schedule() {
                 >
                   Khoảng giá
                 </FormLabel>
-                <RadioGroup defaultValue="all">
+                <RadioGroup value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
                   <FormControlLabel
                     value="all"
                     control={<Radio size="small" />}
@@ -344,7 +478,7 @@ export default function Schedule() {
                 >
                   Độ tuổi
                 </FormLabel>
-                <RadioGroup defaultValue="all">
+                <RadioGroup value={ageRange} onChange={(e) => setAgeRange(e.target.value)}>
                   <FormControlLabel
                     value="all"
                     control={<Radio size="small" />}
@@ -387,12 +521,14 @@ export default function Schedule() {
                 <Button
                   variant="contained"
                   startIcon={<FilterAltIcon />}
+                  onClick={handleApplyFilters}
                   sx={{ textTransform: "none", borderRadius: 2 }}
                 >
                   Lọc
                 </Button>
                 <Button
                   variant="outlined"
+                  onClick={handleResetFilters}
                   sx={{ textTransform: "none", color: "#6b4c00" }}
                 >
                   Đặt lại
