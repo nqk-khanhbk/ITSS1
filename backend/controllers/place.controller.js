@@ -159,3 +159,79 @@ exports.searchPlaces = async (req, res) => {
     console.error("Search Error:", error);
   }
 };
+
+// --- THÊM MỚI: HÀM LẤY CHI TIẾT ĐỊA ĐIỂM ---
+exports.getPlaceDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Tìm địa điểm theo ID
+    const place = await Place.findById(id)
+      .populate("category_id", "name icon")
+      .populate("amenities", "name icon code")
+      .exec();
+
+    if (!place) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy địa điểm" });
+    }
+
+    // 2. Tính toán Rating trung bình & Tổng review
+    const mongoose = require("mongoose"); 
+    const currentPlaceId = new mongoose.Types.ObjectId(id); // Tạo ObjectId chuẩn
+
+    const reviewStats = await Review.aggregate([
+      { $match: { place_id: currentPlaceId } },
+      { 
+        $group: { 
+          _id: "$place_id", 
+          avgRating: { $avg: "$rating" },
+          count: { $sum: 1 }
+        } 
+      }
+    ]);
+
+    const rating = reviewStats.length > 0 ? parseFloat(reviewStats[0].avgRating.toFixed(1)) : 0;
+    const totalReviews = reviewStats.length > 0 ? reviewStats[0].count : 0;
+
+    // 3. Lấy danh sách địa điểm liên quan (Cùng Category, trừ chính nó)
+    // Lưu ý: place.category_id lúc này là Object (do populate), ta lấy ._id của nó
+    const categoryId = place.category_id._id;
+
+    const relatedPlaces = await Place.find({
+      category_id: categoryId, 
+      _id: { $ne: currentPlaceId } // So sánh ObjectId chuẩn để loại trừ chính xác
+    })
+    .select("name images price_range address rating") 
+    .limit(5) 
+    .exec();
+
+    // Format lại related places để có thumbnail
+    const formattedRelated = relatedPlaces.map(p => ({
+      _id: p._id,
+      name: p.name,
+      thumbnail: p.images && p.images.length > 0 ? p.images[0].url : null,
+      price_range: p.price_range,
+      address: p.address
+    }));
+
+    // 4. Trả về kết quả
+    const placeData = place.toObject(); 
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        ...placeData,
+        rating: rating,
+        total_reviews: totalReviews,
+        related_places: formattedRelated
+      }
+    });
+
+  } catch (error) {
+    console.error("Get Detail Error:", error);
+    if (error.name === 'CastError') {
+        return res.status(400).json({ success: false, message: "ID địa điểm không hợp lệ" });
+    }
+    res.status(500).json({ success: false, message: "Lỗi server khi lấy chi tiết địa điểm" });
+  }
+};
