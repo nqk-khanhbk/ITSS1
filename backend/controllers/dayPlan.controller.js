@@ -437,7 +437,6 @@ module.exports.detail = async (req, res) => {
     // Build timeline
     const timeline = dayPlan.items.map((item, index) => ({
       id: item._id,
-      type: index === 0 ? "home" : "location",
       name: item.custom_place_name || item.place_id?.name || "",
       time: item.start_time || "",
       duration: calculateDuration(item.start_time, item.end_time),

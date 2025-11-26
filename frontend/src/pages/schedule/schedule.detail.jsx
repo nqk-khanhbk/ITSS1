@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -15,6 +15,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -31,99 +32,102 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import GroupIcon from "@mui/icons-material/Group";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
-// Mock data cho lịch trình
-const scheduleData = {
-  id: 1,
-  title: "Tây Hồ で家族ピクニック一日プラン",
-  user: {
-    name: "Hà Thu",
-    avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=60",
-  },
-  likes: 742,
-  isLiked: false,
-  overview: {
-    price: "100k-300k",
-    time: "8:00-17:00",
-    age: "Từ 4 tuổi trở lên"
-  },
-  timeline: [
-    {
-      id: 1,
-      type: "home",
-      name: "Nhà",
-      time: "9:00",
-      icon: "home",
-    },
-    {
-      id: 2,
-      type: "location",
-      name: "Công viên nước Hồ Tây",
-      time: "10:00",
-      duration: "1 giờ",
-      transport: "walk",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-      openingHours: "9:00 - 18:00",
-      estimatedCost: "100.000đ - 200.000đ",
-      description: "Công viên nước với nhiều trò chơi phù hợp cho gia đình. Không gian rộng rãi, thoáng mát.",
-      note: "Nên mang theo đồ bơi và kem chống nắng. Cuối tuần thường đông người.",
-      hasWarning: true,
-    },
-    {
-      id: 3,
-      type: "location",
-      name: "Công viên nước Hồ Tây",
-      time: "12:00",
-      duration: "2 giờ",
-      transport: "walk",
-      image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800",
-      openingHours: "11:00 - 22:00",
-      estimatedCost: "150.000đ - 300.000đ",
-      description: "Nhà hàng buffet với nhiều món ăn đa dạng, view nhìn ra Hồ Tây tuyệt đẹp.",
-      note: "Nên đặt bàn trước. Giá buffet trẻ em có ưu đãi.",
-      hasWarning: true,
-    },
-    {
-      id: 4,
-      type: "location",
-      name: "Công viên nước Hồ Tây",
-      time: "14:00",
-      duration: "1.5 giờ",
-      transport: "bike",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800",
-      openingHours: "24/7",
-      estimatedCost: "Miễn phí",
-      description: "Công viên xanh mát, yên tĩnh với nhiều khu vui chơi cho trẻ em.",
-      note: "Có thể thuê xe đạp đôi. Thích hợp chụp ảnh vào buổi chiều.",
-      hasWarning: true,
-    },
-    {
-      id: 5,
-      type: "location",
-      name: "Công viên nước Hồ Tây",
-      time: "16:00",
-      duration: "1 giờ",
-      transport: "car",
-      image: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=800",
-      openingHours: "7:00 - 23:00",
-      estimatedCost: "50.000đ - 100.000đ",
-      description: "Quán cà phê view Hồ Tây lãng mạn, phù hợp nghỉ ngơi cuối ngày.",
-      note: "Có khu vui chơi nhỏ cho trẻ em. Menu đồ uống đa dạng.",
-      hasWarning: false,
-    },
-  ],
-  warnings: [
-    {
-      location: "Công viên nước Hồ Tây",
-      note: "Nên mang theo đồ bơi và kem chống nắng",
-    },
-    {
-      location: "Công viên nước Hồ Tây",
-      note: "Nên đặt bàn trước để có chỗ ngồi đẹp",
-    },
-  ],
-};
+const API_BASE_URL = "http://localhost:3000/api";
+
+// Mock data cho lịch trình - sẽ được thay thế bằng dữ liệu từ API
+// const scheduleDataMock = {
+//   id: 1,
+//   title: "Tây Hồ で家族ピクニック一日プラン",
+//   user: {
+//     name: "Hà Thu",
+//     avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=60",
+//   },
+//   likes: 742,
+//   isLiked: false,
+//   overview: {
+//     price: "100k-300k",
+//     time: "8:00-17:00",
+//     age: "Từ 4 tuổi trở lên"
+//   },
+//   timeline: [
+//     {
+//       id: 1,
+//       type: "home", //bỏ luôn kiểu type;
+//       name: "Nhà",
+//       time: "9:00",
+//       icon: "home",
+//     },
+//     {
+//       id: 2,
+//       type: "location",
+//       name: "Công viên nước Hồ Tây",
+//       time: "10:00",
+//       duration: "1 giờ",
+//       transport: "walk",
+//       image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+//       openingHours: "9:00 - 18:00",
+//       estimatedCost: "100.000đ - 200.000đ",
+//       description: "Công viên nước với nhiều trò chơi phù hợp cho gia đình. Không gian rộng rãi, thoáng mát.",
+//       note: "Nên mang theo đồ bơi và kem chống nắng. Cuối tuần thường đông người.",
+//       hasWarning: true,
+//     },
+//     {
+//       id: 3,
+//       type: "location",
+//       name: "Công viên nước Hồ Tây",
+//       time: "12:00",
+//       duration: "2 giờ",
+//       transport: "walk",
+//       image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800",
+//       openingHours: "11:00 - 22:00",
+//       estimatedCost: "150.000đ - 300.000đ",
+//       description: "Nhà hàng buffet với nhiều món ăn đa dạng, view nhìn ra Hồ Tây tuyệt đẹp.",
+//       note: "Nên đặt bàn trước. Giá buffet trẻ em có ưu đãi.",
+//       hasWarning: true,
+//     },
+//     {
+//       id: 4,
+//       type: "location",
+//       name: "Công viên nước Hồ Tây",
+//       time: "14:00",
+//       duration: "1.5 giờ",
+//       transport: "bike",
+//       image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800",
+//       openingHours: "24/7",
+//       estimatedCost: "Miễn phí",
+//       description: "Công viên xanh mát, yên tĩnh với nhiều khu vui chơi cho trẻ em.",
+//       note: "Có thể thuê xe đạp đôi. Thích hợp chụp ảnh vào buổi chiều.",
+//       hasWarning: true,
+//     },
+//     {
+//       id: 5,
+//       type: "location",
+//       name: "Công viên nước Hồ Tây",
+//       time: "16:00",
+//       duration: "1 giờ",
+//       transport: "car",
+//       image: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=800",
+//       openingHours: "7:00 - 23:00",
+//       estimatedCost: "50.000đ - 100.000đ",
+//       description: "Quán cà phê view Hồ Tây lãng mạn, phù hợp nghỉ ngơi cuối ngày.",
+//       note: "Có khu vui chơi nhỏ cho trẻ em. Menu đồ uống đa dạng.",
+//       hasWarning: false,
+//     },
+//   ],
+//   warnings: [
+//     {
+//       location: "Công viên nước Hồ Tây",
+//       note: "Nên mang theo đồ bơi và kem chống nắng",
+//     },
+//     {
+//       location: "Công viên nước Hồ Tây",
+//       note: "Nên đặt bàn trước để có chỗ ngồi đẹp",
+//     },
+//   ],
+// };
 
 // Component cho một điểm trên timeline
 function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDesc, expandedNote }) {
@@ -155,7 +159,7 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
         {location.hasWarning && (
           <Chip
             icon={<WarningAmberIcon />}
-            label="注意"
+            label="Lưu ý"
             size="small"
             color="warning"
             sx={{ position: "absolute", top: 8, right: 8 }}
@@ -188,7 +192,7 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
           <Box>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                説明
+                Mô tả
               </Typography>
               <IconButton size="small" onClick={() => onToggleDescription(location.id)}>
                 {expandedDesc ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -208,7 +212,7 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
                 <Stack direction="row" alignItems="center" spacing={0.5}>
                   <WarningAmberIcon fontSize="small" color="warning" />
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    注意事項
+                    Lưu ý
                   </Typography>
                 </Stack>
                 <IconButton size="small" onClick={() => onToggleNote(location.id)}>
@@ -228,7 +232,7 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
             size="small"
             sx={{ alignSelf: "flex-start", textTransform: "none" }}
           >
-            詳細を見る
+            Xem chi tiết
           </Button>
         </Stack>
       </CardContent>
@@ -238,9 +242,37 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
 
 function ScheduleDetail() {
   const navigate = useNavigate();
-  const [liked, setLiked] = useState(scheduleData.isLiked);
+  const { id } = useParams();
+  const [scheduleData, setScheduleData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [liked, setLiked] = useState(false);
   const [expandedDesc, setExpandedDesc] = useState({});
   const [expandedNote, setExpandedNote] = useState({});
+
+  // Fetch schedule data from API
+  useEffect(() => {
+    const fetchScheduleData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_BASE_URL}/day-plans/${id}`);
+        
+        if (response.data && response.data.data) {
+          setScheduleData(response.data.data);
+          setLiked(response.data.data.isLiked);
+        }
+      } catch (err) {
+        console.error("Error fetching schedule:", err);
+        setError(err.message || "Không thể tải dữ liệu");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchScheduleData();
+    }
+  }, [id]);
 
   const handleToggleDescription = (id) => {
     setExpandedDesc((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -264,6 +296,51 @@ function ScheduleDetail() {
         return <DirectionsWalkIcon sx={{ color: "#1976d2" }} />;
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          bgcolor: "#f5f5f5",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Show error state
+  if (error || !scheduleData) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          bgcolor: "#f5f5f5",
+        }}
+      >
+        <Paper sx={{ p: 4, textAlign: "center" }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            {error || "Không tìm thấy lịch trình"}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/schedule")}
+            sx={{ mt: 2 }}
+          >
+            Quay lại
+          </Button>
+        </Paper>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: "#f5f5f5", minHeight: "100vh", py: 3 }}>
@@ -312,8 +389,8 @@ function ScheduleDetail() {
                       sx={{
                         width: 56,
                         height: 56,
-                        borderRadius: item.type === "home" ? 2 : "50%",
-                        bgcolor: item.type === "home" ? "#1976d2" : "#fff",
+                        borderRadius: "50%",
+                        bgcolor: "#fff",
                         border: "3px solid #1976d2",
                         display: "flex",
                         alignItems: "center",
@@ -326,11 +403,7 @@ function ScheduleDetail() {
                         },
                       }}
                     >
-                      {item.type === "home" ? (
-                        <HomeIcon sx={{ color: "#fff", fontSize: 28 }} />
-                      ) : (
-                        <LocationOnIcon sx={{ color: "#1976d2", fontSize: 28 }} />
-                      )}
+                      <LocationOnIcon sx={{ color: "#1976d2", fontSize: 28 }} />
                       {item.hasWarning && (
                         <Box
                           sx={{
@@ -465,7 +538,7 @@ function ScheduleDetail() {
                           width: 40,
                           height: 40,
                           borderRadius: "50%",
-                          bgcolor: item.type === "home" ? "#1976d2" : "#fff",
+                          bgcolor: "#fff",
                           border: "2px solid #1976d2",
                           display: "flex",
                           alignItems: "center",
@@ -473,11 +546,7 @@ function ScheduleDetail() {
                           zIndex: 1,
                         }}
                       >
-                        {item.type === "home" ? (
-                          <HomeIcon sx={{ color: "#fff" }} />
-                        ) : (
-                          <LocationOnIcon sx={{ color: "#1976d2" }} />
-                        )}
+                        <LocationOnIcon sx={{ color: "#1976d2" }} />
                       </Box>
                       {item.transport && (
                         <Box sx={{ mt: 1 }}>{getTransportIcon(item.transport)}</Box>
@@ -491,21 +560,13 @@ function ScheduleDetail() {
 
                     {/* Content */}
                     <Box sx={{ flex: 1 }}>
-                      {item.type === "home" ? (
-                        <Paper sx={{ p: 2 }}>
-                          <Typography variant="subtitle1" fontWeight={600}>
-                            {item.name}
-                          </Typography>
-                        </Paper>
-                      ) : (
-                        <TimelineCard
-                          location={item}
-                          onToggleDescription={handleToggleDescription}
-                          onToggleNote={handleToggleNote}
-                          expandedDesc={expandedDesc[item.id]}
-                          expandedNote={expandedNote[item.id]}
-                        />
-                      )}
+                      <TimelineCard
+                        location={item}
+                        onToggleDescription={handleToggleDescription}
+                        onToggleNote={handleToggleNote}
+                        expandedDesc={expandedDesc[item.id]}
+                        expandedNote={expandedNote[item.id]}
+                      />
                     </Box>
                   </Stack>
                 </Box>
@@ -518,44 +579,40 @@ function ScheduleDetail() {
               {/* Tổng quan */}
               <Paper sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                  概要
+                  Tổng quan
                 </Typography>
                 <Stack spacing={1.5}>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <AttachMoneyIcon color="action" />
                     <Typography variant="body2">
-                      <strong>料金:</strong> {scheduleData.overview.price}
+                      <strong>Chi phí:</strong> {scheduleData.overview.price}
                     </Typography>
                   </Stack>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <AccessTimeIcon color="action" />
                     <Typography variant="body2">
-                      <strong>時間:</strong> {scheduleData.overview.time}
+                      <strong>Thời gian:</strong> {scheduleData.overview.time}
                     </Typography>
                   </Stack>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <GroupIcon color="action" />
                     <Typography variant="body2">
-                      <strong>年齢:</strong> {scheduleData.overview.age}
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <LocationOnIcon color="action" />
-                    <Typography variant="body2">
-                      <strong>場所:</strong> {scheduleData.overview.location}
+                      <strong>Độ tuổi:</strong> {scheduleData.overview.age}
                     </Typography>
                   </Stack>
                   <Divider />
-                  <Typography variant="body2" color="warning.main">
-                    ⚠️ {scheduleData.overview.note}
-                  </Typography>
+                  {scheduleData.warnings.length > 0 && (
+                    <Typography variant="body2" color="warning.main">
+                      ⚠️ Có {scheduleData.warnings.length} lưu ý quan trọng
+                    </Typography>
+                  )}
                 </Stack>
               </Paper>
 
               {/* Danh sách chú ý */}
               <Paper sx={{ p: 2 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                  注意
+                  Lưu ý
                 </Typography>
                 <Stack spacing={1.5}>
                   {scheduleData.warnings.map((warning, index) => (
@@ -581,7 +638,7 @@ function ScheduleDetail() {
               {/* Bản đồ */}
               <Paper sx={{ p: 2 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                  地図
+                  Bản đồ
                 </Typography>
                 <Box
                   sx={{
@@ -594,7 +651,7 @@ function ScheduleDetail() {
                     borderRadius: 2,
                   }}
                 >
-                  <Typography color="text.secondary">Map Placeholder</Typography>
+                  <Typography color="text.secondary">Bản đồ</Typography>
                 </Box>
               </Paper>
             </Stack>
