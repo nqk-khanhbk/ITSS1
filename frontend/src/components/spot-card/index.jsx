@@ -10,7 +10,7 @@ const SpotCard = ({ spot }) => {
         sx={{ 
             width: '250px', 
             position: 'relative', 
-            height: 450, 
+            height: 400, 
             display: 'flex', 
             flexDirection: 'column',
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)', 
