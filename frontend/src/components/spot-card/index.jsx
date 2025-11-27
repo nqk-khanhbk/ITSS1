@@ -2,9 +2,18 @@ import * as React from 'react';
 import { Card, CardMedia, CardContent, Typography, IconButton, Box, Button } from '@mui/material'; // Thêm Button
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StarIcon from '@mui/icons-material/Star';
+import { useNavigate } from 'react-router-dom';
 
 // Component hiển thị chi tiết 1 địa điểm
 const SpotCard = ({ spot }) => {
+  const navigate = useNavigate();
+
+  // Hàm xử lý điều hướng đến trang chi tiết
+  const handleDetailClick = () => {
+      // Sử dụng ID của địa điểm (spot._id) để xây dựng URL
+      navigate(`/places/${spot._id}`);
+  };
+
   return (
     <Card 
         sx={{ 
@@ -92,6 +101,7 @@ const SpotCard = ({ spot }) => {
                 variant="contained" 
                 size="small" 
                 fullWidth
+                onClick={handleDetailClick}
                 sx={{ 
                     textTransform: 'none', 
                     fontWeight: 'bold',
