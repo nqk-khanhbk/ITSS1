@@ -101,7 +101,7 @@ exports.searchPlaces = async (req, res) => {
       
       // Pagination
       page = 1, 
-      limit = 8, 
+      limit = 9, 
       view = 'list'
     } = req.query;
 
