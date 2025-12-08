@@ -1,7 +1,8 @@
 const userRouter = require('./user.routes');
 const placeRouter = require('./place.routes');
-const reviewRouter = require('./review.routes'); // 1. Import Review Route
+const reviewRouter = require('./review.routes');
 const dayPlanRoutes = require("./dayPlan.routes");
+const favoriteRouter = require('./favorite.routes'); // Thêm mới
 
 function route(app) {
   // Route cho User
@@ -10,10 +11,14 @@ function route(app) {
   // Route cho Place
   app.use('/api/places', placeRouter);
   
-  // 2. Đăng ký Route cho Review
-  // URL gốc sẽ là /api/reviews
+  // Route cho Review
   app.use('/api/reviews', reviewRouter);
+  
+  // Route cho Day Plan
   app.use("/api/day-plans", dayPlanRoutes);
+  
+  // Route cho Favorite (Thêm mới)
+  app.use('/api/favorites', favoriteRouter);
 }
 
 module.exports = route;

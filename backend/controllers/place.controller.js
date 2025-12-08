@@ -483,3 +483,54 @@ exports.getFilterOptions = async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi server khi lấy filter options" });
   }
 };
+
+// ============ GET PLACES RANKING (Bảng xếp hạng) ============
+
+exports.getPlacesRanking = async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Lấy tất cả places, sắp xếp theo avg_rating giảm dần
+    const places = await Place.find({})
+      .select("name images description price_range avg_rating total_reviews")
+      .sort({ avg_rating: -1, total_reviews: -1 }) // Ưu tiên rating cao, sau đó là nhiều reviews
+      .skip(skip)
+      .limit(parseInt(limit))
+      .exec();
+
+    // Đếm tổng số places
+    const total = await Place.countDocuments({});
+
+    // Format kết quả với thứ hạng
+    const formattedPlaces = places.map((place, index) => ({
+      rank: skip + index + 1, // Thứ hạng
+      _id: place._id,
+      name: place.name,
+      images: place.images || [],
+      description: place.description || "",
+      price_range: place.price_range || "Miễn phí",
+      rating: formatRating(place.avg_rating),
+      total_reviews: place.total_reviews || 0
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: formattedPlaces,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / parseInt(limit))
+      }
+    });
+
+  } catch (error) {
+    console.error("Get Places Ranking Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi lấy bảng xếp hạng"
+    });
+  }
+};

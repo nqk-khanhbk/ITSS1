@@ -469,3 +469,263 @@ module.exports.detail = async (req, res) => {
     return res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };
+
+// ============ LẤY DANH SÁCH KẾ HOẠCH YÊU THÍCH ============
+module.exports.getFavoriteDayPlans = async (req, res) => {
+  try {
+    const { user_id, page = 1, limit = 10 } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp user_id"
+      });
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Lấy danh sách likes của user
+    const likes = await Like.find({ user_id })
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+
+    // Đếm tổng số likes
+    const total = await Like.countDocuments({ user_id });
+
+    // Lấy danh sách day_plan_ids
+    const dayPlanIds = likes.map(like => like.day_plan_id);
+
+    // Lấy thông tin chi tiết các day plans
+    const dayPlans = await DayPlan.find({ _id: { $in: dayPlanIds } })
+      .populate("user_id", "fullName avatar")
+      .populate({
+        path: "items.place_id",
+        select: "name images address"
+      })
+      .lean();
+
+    // Tạo map để giữ thứ tự theo likes
+    const dayPlanMap = {};
+    dayPlans.forEach(dp => {
+      dayPlanMap[dp._id.toString()] = dp;
+    });
+
+    // Format kết quả theo thứ tự likes
+    const formattedResults = await Promise.all(
+      likes.map(async (like) => {
+        const dayPlan = dayPlanMap[like.day_plan_id.toString()];
+        
+        if (!dayPlan) return null; // Day plan đã bị xóa
+
+        // Đếm tổng số likes của day plan này
+        const totalLikes = await Like.countDocuments({ day_plan_id: dayPlan._id });
+
+        // Lấy tất cả ảnh từ day plan
+        const images = [];
+        
+        // Thêm cover image
+        if (dayPlan.cover_image) {
+          images.push({
+            url: dayPlan.cover_image,
+            alt_text: "Cover image"
+          });
+        }
+
+        // Thêm ảnh từ các items
+        dayPlan.items.forEach(item => {
+          if (item.image) {
+            images.push({
+              url: item.image,
+              alt_text: item.custom_place_name || "Item image"
+            });
+          }
+        });
+
+        // Lấy danh sách các địa điểm trong kế hoạch
+        const places = dayPlan.items
+          .filter(item => item.place_id)
+          .map(item => ({
+            place_id: item.place_id._id,
+            name: item.place_id.name,
+            custom_name: item.custom_place_name || null,
+            address: item.place_id.address,
+            thumbnail: item.place_id.images && item.place_id.images.length > 0 
+              ? item.place_id.images[0].url 
+              : null
+          }));
+
+        return {
+          like_id: like._id,
+          day_plan_id: dayPlan._id,
+          title: dayPlan.title,
+          description: dayPlan.description || "",
+          images: images,
+          places: places,
+          places_count: places.length,
+          total_likes: totalLikes,
+          tags: dayPlan.tags || [],
+          author: {
+            user_id: dayPlan.user_id?._id,
+            fullName: dayPlan.user_id?.fullName || "Unknown",
+            avatar: dayPlan.user_id?.avatar || ""
+          },
+          liked_at: like.created_at
+        };
+      })
+    );
+
+    // Loại bỏ null (day plans đã bị xóa)
+    const filteredResults = formattedResults.filter(r => r !== null);
+
+    res.status(200).json({
+      success: true,
+      data: filteredResults,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / parseInt(limit))
+      }
+    });
+
+  } catch (error) {
+    console.error("Get Favorite Day Plans Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi lấy danh sách kế hoạch yêu thích"
+    });
+  }
+};
+
+// ============ THÊM KẾ HOẠCH VÀO YÊU THÍCH (LIKE) ============
+module.exports.likeDayPlan = async (req, res) => {
+  try {
+    const { user_id, day_plan_id } = req.body;
+
+    if (!user_id || !day_plan_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp user_id và day_plan_id"
+      });
+    }
+
+    // Kiểm tra day plan tồn tại
+    const dayPlan = await DayPlan.findById(day_plan_id);
+    if (!dayPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy kế hoạch"
+      });
+    }
+
+    // Kiểm tra đã like chưa
+    const existingLike = await Like.findOne({ user_id, day_plan_id });
+    if (existingLike) {
+      return res.status(400).json({
+        success: false,
+        message: "Bạn đã yêu thích kế hoạch này rồi"
+      });
+    }
+
+    // Tạo like mới
+    const newLike = await Like.create({ user_id, day_plan_id });
+
+    // Đếm tổng likes
+    const totalLikes = await Like.countDocuments({ day_plan_id });
+
+    res.status(201).json({
+      success: true,
+      message: "Đã thêm vào danh sách yêu thích",
+      data: {
+        like_id: newLike._id,
+        day_plan_id: day_plan_id,
+        total_likes: totalLikes
+      }
+    });
+
+  } catch (error) {
+    console.error("Like Day Plan Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi thêm yêu thích"
+    });
+  }
+};
+
+// ============ XÓA KẾ HOẠCH KHỎI YÊU THÍCH (UNLIKE) ============
+module.exports.unlikeDayPlan = async (req, res) => {
+  try {
+    const { day_plan_id } = req.params;
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp user_id"
+      });
+    }
+
+    const result = await Like.deleteOne({ user_id, day_plan_id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy trong danh sách yêu thích"
+      });
+    }
+
+    // Đếm tổng likes còn lại
+    const totalLikes = await Like.countDocuments({ day_plan_id });
+
+    res.status(200).json({
+      success: true,
+      message: "Đã xóa khỏi danh sách yêu thích",
+      data: {
+        total_likes: totalLikes
+      }
+    });
+
+  } catch (error) {
+    console.error("Unlike Day Plan Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi xóa yêu thích"
+    });
+  }
+};
+
+// ============ KIỂM TRA ĐÃ YÊU THÍCH KẾ HOẠCH CHƯA ============
+module.exports.checkLikeDayPlan = async (req, res) => {
+  try {
+    const { day_plan_id } = req.params;
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp user_id"
+      });
+    }
+
+    const like = await Like.findOne({ user_id, day_plan_id });
+    const totalLikes = await Like.countDocuments({ day_plan_id });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        is_liked: !!like,
+        like_id: like ? like._id : null,
+        total_likes: totalLikes
+      }
+    });
+
+  } catch (error) {
+    console.error("Check Like Day Plan Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi kiểm tra yêu thích"
+    });
+  }
+};
