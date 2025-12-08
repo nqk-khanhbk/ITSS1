@@ -25,6 +25,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Schedule() {
   // const plans = useMemo(() => mockPlans.slice(0, 6), []);
@@ -196,6 +197,8 @@ export default function Schedule() {
           </Typography>
           <Button
             variant="contained"
+            component={Link}
+            to="/schedule/create"
             color="primary"
             startIcon={<FavoriteBorderIcon />}
             sx={{

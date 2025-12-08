@@ -9,6 +9,7 @@ import Login from "../pages/login";
 import Register from "../pages/register";
 import Profile from "../pages/profile";
 import PrivateRoutes from "./private.router";
+import ScheduleCreate from "../pages/schedule/schedule.create";
 
 export const Router = [
   {
@@ -38,7 +39,11 @@ export const Router = [
           { 
             path: '/profile',
             element: <Profile />
-           }
+          },
+          {
+            path: '/schedule/create',
+            element: <ScheduleCreate />
+          }
         ],
       },
     ]
