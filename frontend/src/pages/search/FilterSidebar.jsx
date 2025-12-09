@@ -28,7 +28,7 @@ const FilterSidebar = ({ tempFilterState, setTempFilterState, onApply, onReset }
             bgcolor: '#fff',
             borderRadius: 2,
             boxShadow: 1,
-            height: '80vh',
+            height: '100vh',
             overflowY: 'auto'
         }}
         >
