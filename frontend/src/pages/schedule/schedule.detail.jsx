@@ -34,6 +34,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { getCookie } from '../../helpers/cookies.helper';
+import { likeDayPlan, unlikeDayPlan, checkLikeDayPlan } from '../../services/favorite.services';
 
 const API_BASE_URL = "http://localhost:3000/api";
 
@@ -247,6 +249,7 @@ function ScheduleDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
   const [expandedDesc, setExpandedDesc] = useState({});
   const [expandedNote, setExpandedNote] = useState({});
 
@@ -260,6 +263,22 @@ function ScheduleDetail() {
         if (response.data && response.data.data) {
           setScheduleData(response.data.data);
           setLiked(response.data.data.isLiked);
+          setLikesCount(response.data.data.likes || 0);
+          // If user logged in, ensure like status is correct by calling check endpoint
+          try {
+            const userStr = getCookie('user');
+            if (userStr) {
+              const user = JSON.parse(userStr);
+              const chk = await checkLikeDayPlan(user._id, id);
+              if (chk && chk.data && typeof chk.data.is_liked !== 'undefined') {
+                setLiked(!!chk.data.is_liked);
+                // prefer server count if provided
+                if (typeof chk.data.total_likes === 'number') setLikesCount(chk.data.total_likes);
+              }
+            }
+          } catch (e) {
+            // ignore
+          }
         }
       } catch (err) {
         console.error("Error fetching schedule:", err);
@@ -355,9 +374,34 @@ function ScheduleDetail() {
               {scheduleData.title}
             </Typography>
           </Stack>
-          <IconButton onClick={() => setLiked(!liked)} sx={{ color: liked ? "#f44336" : "inherit" }}>
-            {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-          </IconButton>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <IconButton
+                      onClick={async () => {
+                        const userStr = getCookie('user');
+                        if (!userStr) {
+                          return navigate('/login');
+                        }
+                        const user = JSON.parse(userStr);
+                        try {
+                          if (liked) {
+                            await unlikeDayPlan(user._id, id);
+                            setLiked(false);
+                            setLikesCount((c) => Math.max(0, c - 1));
+                          } else {
+                            await likeDayPlan(user._id, id);
+                            setLiked(true);
+                            setLikesCount((c) => c + 1);
+                          }
+                        } catch (err) {
+                          console.error('Like toggle error', err);
+                        }
+                      }}
+                      sx={{ color: liked ? "#f44336" : "inherit" }}
+                    >
+                      {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    </IconButton>
+                    <Typography variant="body2" color="text.secondary">{likesCount}</Typography>
+                  </Stack>
         </Stack>
 
         {/* Horizontal Timeline Overview */}

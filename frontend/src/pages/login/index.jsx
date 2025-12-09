@@ -58,6 +58,12 @@ function Login() {
         // Lưu user info nếu có
         if (response.data) {
           setCookie('fullName', response.data.fullName, expiryDays);
+          // Store full user object as JSON string so other components can read user._id
+          try {
+            setCookie('user', JSON.stringify(response.data), expiryDays);
+          } catch (e) {
+            console.warn('Failed to stringify user data for cookie', e);
+          }
         }
 
         toast.success('Đăng nhập thành công!');
