@@ -516,7 +516,7 @@ module.exports.getFavoriteDayPlans = async (req, res) => {
     const formattedResults = await Promise.all(
       likes.map(async (like) => {
         const dayPlan = dayPlanMap[like.day_plan_id.toString()];
-        
+
         if (!dayPlan) return null; // Day plan đã bị xóa
 
         // Đếm tổng số likes của day plan này
@@ -524,7 +524,7 @@ module.exports.getFavoriteDayPlans = async (req, res) => {
 
         // Lấy tất cả ảnh từ day plan
         const images = [];
-        
+
         // Thêm cover image
         if (dayPlan.cover_image) {
           images.push({
@@ -551,8 +551,8 @@ module.exports.getFavoriteDayPlans = async (req, res) => {
             name: item.place_id.name,
             custom_name: item.custom_place_name || null,
             address: item.place_id.address,
-            thumbnail: item.place_id.images && item.place_id.images.length > 0 
-              ? item.place_id.images[0].url 
+            thumbnail: item.place_id.images && item.place_id.images.length > 0
+              ? item.place_id.images[0].url
               : null
           }));
 

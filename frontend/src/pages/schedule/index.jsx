@@ -335,7 +335,7 @@ export default function Schedule() {
                       Xem ngay
                     </Button>
                     <Typography variant="caption" sx={{ color: "#9ca3af" }}>
-                      #{plan.area[0].replace(/\s+/g, "")}
+                     #{plan?.area?.[0]?.replace(/\s+/g, "") ?? ""}
                     </Typography>
                   </Stack>
                 </Paper>
