@@ -23,7 +23,15 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import EventIcon from '@mui/icons-material/Event';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { getCookie, deleteCookie } from '../../helpers/cookies.helper';
+import {
+  getFavoritePlaces,
+  getFavoritePlans,
+  removeFavoritePlace,
+} from '../../services/favorite.services';
+import { unlikeDayPlan } from '../../services/favorite.services';
 
 function Profile() {
   const navigate = useNavigate();
@@ -31,76 +39,13 @@ function Profile() {
   const fullName = getCookie('fullName');
   const token = getCookie('token');
 
-  // Mock data - thay thế bằng API call thực tế
-  const [favoriteSpots, setFavoriteSpots] = useState([
-    {
-      id: 1,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 4,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    },
-    {
-      id: 2,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 5,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    },
-    {
-      id: 3,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 3,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    },
-    {
-      id: 4,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 4,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    },
-    {
-      id: 5,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 5,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    },
-    {
-      id: 6,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 4,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    }
-  ]);
+  // Initial state empty — sẽ được load từ backend trong useEffect
+  const [favoriteSpots, setFavoriteSpots] = useState([]);
 
-  const [favoritePlans, setFavoritePlans] = useState([
-    {
-      id: 1,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 4,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    },
-    {
-      id: 2,
-      name: 'スポットの名前',
-      address: '東京',
-      rating: 5,
-      image: '/placeholder.jpg',
-      reviews: '30件の口コミ'
-    }
-  ]);
+  const [favoritePlans, setFavoritePlans] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 6;
 
   useEffect(() => {
     // Kiểm tra đăng nhập
@@ -108,6 +53,61 @@ function Profile() {
       navigate('/login');
     }
   }, [token, navigate]);
+
+  useEffect(() => {
+    // Load favorites (places paginated, plans not paginated)
+    const userStr = getCookie('user');
+    if (!userStr) return;
+    try {
+      const user = JSON.parse(userStr);
+      const user_id = user._id;
+
+      (async () => {
+        try {
+          if (activeTab === 'favorites') {
+            const respPlaces = await getFavoritePlaces(user_id, page, LIMIT);
+            if (respPlaces && respPlaces.data) {
+              const spots = respPlaces.data.map((f) => ({
+                id: f.place_id || f.placeId || f.place_id,
+                _id: f.place_id || f.placeId || f.place_id,
+                name: f.name || '',
+                address: f.address || '',
+                rating: f.rating ? Number(f.rating) : 0,
+                image: (f.images && f.images.length > 0 && (f.images[0].url || f.images[0])) ? (f.images[0].url || f.images[0]) : '/placeholder.jpg',
+                reviews: f.total_reviews ? `${f.total_reviews} đánh giá` : '',
+                rawFavoriteId: f.favorite_id || f.favoriteId || f.favorite_id
+              }));
+              setFavoriteSpots(spots.filter(Boolean));
+              if (respPlaces.pagination) setTotalPages(respPlaces.pagination.totalPages || 1);
+            } else {
+              setFavoriteSpots([]);
+              setTotalPages(1);
+            }
+          } else {
+            const respPlans = await getFavoritePlans(user_id);
+            if (respPlans && respPlans.data) {
+              const plans = respPlans.data.map((p) => ({
+                id: p.day_plan_id || p._id || p.id,
+                name: p.title || p.name || (p.day_plan && p.day_plan.title) || 'Kế hoạch',
+                address: '',
+                rating: 0,
+                image: (p.images && p.images.length > 0 && p.images[0].url) ? p.images[0].url : '/placeholder.jpg',
+                reviews: '',
+                raw: p
+              }));
+              setFavoritePlans(plans);
+            } else {
+              setFavoritePlans([]);
+            }
+          }
+        } catch (err) {
+          console.error('Load favorites error', err);
+        }
+      })();
+    } catch (e) {
+      console.warn('Invalid user cookie', e);
+    }
+  }, [token, activeTab, page]);
 
   const handleLogout = () => {
     deleteCookie('token');
@@ -117,10 +117,29 @@ function Profile() {
   };
 
   const handleUnfavorite = (id, type) => {
+    const userStr = getCookie('user');
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const user_id = user._id;
+
     if (type === 'spot') {
-      setFavoriteSpots(favoriteSpots.filter(spot => spot.id !== id));
+      // Call backend to remove
+      removeFavoritePlace(user_id, id)
+        .then(() => {
+          setFavoriteSpots((prev) => prev.filter((spot) => spot.id !== id && spot._id !== id));
+        })
+        .catch((err) => {
+          console.error('Remove favorite error', err);
+        });
     } else {
-      setFavoritePlans(favoritePlans.filter(plan => plan.id !== id));
+      // Call backend to unlike the day plan, then update UI
+      unlikeDayPlan(user_id, id)
+        .then(() => {
+          setFavoritePlans((prev) => prev.filter((plan) => plan.id !== id));
+        })
+        .catch((err) => {
+          console.error('Remove favorite plan error', err);
+        });
     }
   };
 
@@ -130,6 +149,34 @@ function Profile() {
     } else {
       navigate(`/schedule/${id}`);
     }
+  };
+
+  // Compute visible pagination items according to rules:
+  // - Always show page 1 and last page
+  // - Show current page and its immediate neighbors
+  // - Use ellipses where there's a gap
+  const getVisiblePagination = (current, total) => {
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const pagesSet = new Set();
+    pagesSet.add(1);
+    pagesSet.add(total);
+    pagesSet.add(current);
+    if (current - 1 >= 2) pagesSet.add(current - 1);
+    if (current + 1 <= total - 1) pagesSet.add(current + 1);
+
+    const pages = Array.from(pagesSet).filter((n) => n >= 1 && n <= total).sort((a, b) => a - b);
+    const result = [];
+    let prev = 0;
+    for (const p of pages) {
+      if (prev && p - prev > 1) {
+        result.push('ellipsis');
+      }
+      result.push(p);
+      prev = p;
+    }
+    return result;
   };
 
   return (
@@ -219,12 +266,15 @@ function Profile() {
 
             {/* Right Content Area - 9 parts */}
             <Grid item xs={12} md={9} sx={{flex:1}}>
-              <Grid container spacing={3}>
+              <Grid container spacing={3} alignItems="stretch" alignContent="stretch">
                 {(activeTab === 'favorites' ? favoriteSpots : favoritePlans).map((item) => (
-                  <Grid item xs={12} sm={6} md={4} key={item.id}>
+                  <Grid item xs={12} sm={6} md={4} key={item.id} sx={{ display: 'flex', alignItems: 'stretch', justifyContent: 'center' }}>
                     <Card
                       sx={{
-                        height: '100%',
+                        width: { xs: '100%', sm: 320, md: 348 },
+                        maxWidth: 348,
+                        minHeight: 460,
+                        boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
                         position: 'relative',
@@ -264,22 +314,38 @@ function Profile() {
                         <Typography color="text.secondary">画像</Typography>
                       </CardMedia>
 
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography variant="h6" fontWeight={600} gutterBottom>
-                          {item.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                          {item.address}
-                        </Typography>
-                        
-                        {/* Rating */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Rating value={item.rating} readOnly size="small" />
+                      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2 }}>
+                        <Box>
+                          <Typography
+                            variant="h6"
+                            fontWeight={600}
+                            gutterBottom
+                            sx={{
+                              lineHeight: 1.2,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              wordBreak: 'break-word',
+                              minHeight: '3rem'
+                            }}
+                          >
+                            {item.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 1 }}>
+                            {item.address}
+                          </Typography>
+
+                          {/* Rating */}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Rating value={item.rating} readOnly size="small" />
+                          </Box>
+
+                          <Typography variant="caption" color="text.secondary">
+                            {item.reviews}
+                          </Typography>
                         </Box>
-                        
-                        <Typography variant="caption" color="text.secondary">
-                          {item.reviews}
-                        </Typography>
 
                         {/* Detail Button */}
                         <Button
@@ -295,6 +361,71 @@ function Profile() {
                   </Grid>
                 ))}
               </Grid>
+
+              {/* Pagination for favorites (places) */}
+              {activeTab === 'favorites' && totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      aria-label="previous page"
+                    >
+                      <ChevronLeftIcon />
+                    </IconButton>
+
+                    {getVisiblePagination(page, totalPages).map((item, idx) =>
+                      item === 'ellipsis' ? (
+                        <Typography
+                          key={`el-${idx}`}
+                          sx={{ px: 1.25, color: 'text.secondary', userSelect: 'none' }}
+                        >
+                          &hellip;
+                        </Typography>
+                      ) : (
+                        <Button
+                          key={item}
+                          size="small"
+                          onClick={() => setPage(item)}
+                          variant={item === page ? 'contained' : 'text'}
+                          color={item === page ? 'primary' : 'inherit'}
+                          sx={
+                            item === page
+                              ? {
+                                  minWidth: 40,
+                                  height: 36,
+                                  borderRadius: 2,
+                                  px: 1.5,
+                                  bgcolor: 'primary.main',
+                                  color: 'common.white',
+                                  boxShadow: 3,
+                                  '&:hover': { bgcolor: 'primary.dark' }
+                                }
+                              : {
+                                  minWidth: 34,
+                                  height: 32,
+                                  color: 'primary.main',
+                                  '&:hover': { bgcolor: 'transparent' }
+                                }
+                          }
+                        >
+                          {item}
+                        </Button>
+                      )
+                    )}
+
+                    <IconButton
+                      size="small"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      aria-label="next page"
+                    >
+                      <ChevronRightIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+              )}
 
               {/* Empty State */}
               {((activeTab === 'favorites' && favoriteSpots.length === 0) ||

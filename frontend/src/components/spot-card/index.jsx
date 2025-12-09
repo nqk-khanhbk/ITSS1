@@ -12,9 +12,46 @@ import {
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import StarIcon from '@mui/icons-material/Star';
 import { useNavigate } from 'react-router-dom';
+import { getCookie } from '../../helpers/cookies.helper';
+import { addFavoritePlace, removeFavoritePlace, checkFavoritePlace } from '../../services/favorite.services';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
-const SpotCard = ({ spot }) => {
+const SpotCard = ({ spot, isFavorite: isFavoriteProp, onToggleFavorite }) => {
   const navigate = useNavigate();
+  // Controlled if parent provides isFavoriteProp; otherwise local state and optional backend check
+  const [isFavorite, setIsFavorite] = React.useState(
+    typeof isFavoriteProp === 'boolean' ? isFavoriteProp : false
+  );
+
+  React.useEffect(() => {
+    // If parent passes isFavoriteProp, keep local state in sync
+    if (typeof isFavoriteProp === 'boolean') {
+      setIsFavorite(isFavoriteProp);
+      return;
+    }
+
+    // Otherwise, perform a one-time check with backend (only if user logged in)
+    let mounted = true;
+    const userStr = getCookie('user');
+    if (!userStr) return;
+    try {
+      const user = JSON.parse(userStr);
+      const userId = user._id;
+      (async () => {
+        try {
+          const res = await checkFavoritePlace(userId, spot._id || spot.id);
+          if (mounted && res && res.data && typeof res.data.is_favorite !== 'undefined') {
+            setIsFavorite(!!res.data.is_favorite);
+          }
+        } catch (err) {
+          // ignore
+        }
+      })();
+    } catch (e) {
+      // invalid user cookie
+    }
+    return () => { mounted = false };
+  }, [spot, isFavoriteProp]);
 
   const handleDetailClick = () => {
     navigate(`/places/${spot._id}`);
@@ -81,8 +118,34 @@ const SpotCard = ({ spot }) => {
           >
             {spot.name || 'Địa điểm chưa có tên'}
           </Typography>
-          <IconButton size="small" sx={{ p: 0.5, mt: -0.5 }} aria-label="Yêu thích">
-            <FavoriteBorderIcon fontSize="small" />
+          <IconButton
+            size="small"
+            sx={{ p: 0.5, mt: -0.5 }}
+            aria-label="Yêu thích"
+            onClick={async (e) => {
+              e.stopPropagation();
+              const userStr = getCookie('user');
+              if (!userStr) {
+                navigate('/login');
+                return;
+              }
+              const user = JSON.parse(userStr);
+              try {
+                if (isFavorite) {
+                  await removeFavoritePlace(user._id, spot._id || spot.id);
+                  setIsFavorite(false);
+                  if (typeof onToggleFavorite === 'function') onToggleFavorite(false, spot);
+                } else {
+                  await addFavoritePlace(user._id, spot._id || spot.id);
+                  setIsFavorite(true);
+                  if (typeof onToggleFavorite === 'function') onToggleFavorite(true, spot);
+                }
+              } catch (err) {
+                console.error('Favorite toggle error', err);
+              }
+            }}
+          >
+            {isFavorite ? <FavoriteIcon fontSize="small" color="error" /> : <FavoriteBorderIcon fontSize="small" />}
           </IconButton>
         </Stack>
 
