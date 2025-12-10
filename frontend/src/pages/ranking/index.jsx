@@ -14,7 +14,13 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import StarIcon from '@mui/icons-material/Star';
 import { useNavigate } from 'react-router-dom';
-import FilterSidebar from '../search/FilterSidebar'; // Import FilterSidebar
+import FilterSidebar from '../search/FilterSidebar';
+import { getCookie } from '../../helpers/cookies.helper';
+import {
+  addFavoritePlace,
+  removeFavoritePlace,
+  checkFavoritePlace,
+} from '../../services/favorite.services';
 
 const RankingPage = () => {
   const navigate = useNavigate();
@@ -66,15 +72,33 @@ const RankingPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [filterState, page]);
 
-  const toggleFavorite = (placeId) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(placeId)) {
-      newFavorites.delete(placeId);
-    } else {
-      newFavorites.add(placeId);
+  const toggleFavorite = async (placeId) => {
+    const userStr = getCookie('user');
+    if (!userStr) {
+      alert('Vui lòng đăng nhập để sử dụng chức năng này');
+      return;
     }
-    setFavorites(newFavorites);
+
+    const user = JSON.parse(userStr);
+
+    const newFavorites = new Set(favorites);
+
+    try {
+      if (newFavorites.has(placeId)) {
+        await removeFavoritePlace(user._id, placeId);
+        newFavorites.delete(placeId);
+      } else {
+        await addFavoritePlace(user._id, placeId);
+        newFavorites.add(placeId);
+      }
+
+      setFavorites(newFavorites);
+    } catch (err) {
+      console.error('Toggle favorite error', err);
+      alert('Có lỗi xảy ra khi cập nhật yêu thích');
+    }
   };
+
 
   const getSpotImageUrl = (place) => {
     if (place.images && Array.isArray(place.images) && place.images.length > 0) {
@@ -123,7 +147,14 @@ const RankingPage = () => {
 
             {/* Ranking Items */}
             <Stack spacing={2}>
-              {places.map((place, index) => {
+              {places.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="h6" color="text.secondary">
+                    Không có xếp hạng theo yêu cầu
+                  </Typography>
+                </Box>
+              ) : (
+              places.map((place, index) => {
                 const imageUrl = getSpotImageUrl(place);
                 const isFavorite = favorites.has(place._id);
                 const rankingNumber = (page - 1) * 4 + index + 1;
@@ -244,14 +275,14 @@ const RankingPage = () => {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => navigate(`/place/${place._id}`)}
+                      onClick={() => navigate(`/places/${place._id}`)}
                       sx={{ textTransform: 'none', minWidth: 120, alignSelf: 'flex-start' }}
                     >
                       Xem chi tiết
                     </Button>
                   </Paper>
                 );
-              })}
+              }))}
             </Stack>
 
             {/* Pagination */}
