@@ -6,22 +6,16 @@ const User = require("../models/user.model");
 // POST /api/day-plans - Tạo kế hoạch mới
 module.exports.create = async (req, res) => {
   try {
-    const { user_id, title, date, cover_image, tags, items, note } = req.body;
+    const { title, date, cover_image, tags, items, note } = req.body;
+
+    // Lấy user_id từ res.locals.user (đã được set bởi requireAuth middleware)
+    const user_id = res.locals.user._id;
 
     // Validate required fields
-    if (!user_id || !title) {
+    if (!title) {
       return res.status(400).json({
         success: false,
-        message: "Vui lòng cung cấp user_id và title",
-      });
-    }
-
-    // Kiểm tra user tồn tại
-    const user = await User.findById(user_id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy người dùng",
+        message: "Vui lòng cung cấp title",
       });
     }
 

@@ -203,7 +203,6 @@ const ScheduleCreate = () => {
 
       // Prepare data for API
       const dayPlanData = {
-        user_id: '693791edb4a4ce2737d360d7', // TODO: Lấy từ auth context/cookies
         title: formData.title,
         note: formData.note,
         date: formData.date ? new Date(formData.date).toISOString() : null,
