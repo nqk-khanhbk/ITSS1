@@ -33,6 +33,7 @@ const dayPlanSchema = new mongoose.Schema(
     },
     title: { type: String, required: true },
     description: String,
+    note: String,
     date: Date,
     cover_image: String,
     tags: [String],

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const controllers = require("../controllers/dayPlan.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 const multer = require("multer");
 const uploadNone = multer().none();
 
@@ -24,6 +25,9 @@ router.post("/likes", controllers.likeDayPlan);
 router.delete("/likes/:day_plan_id", controllers.unlikeDayPlan);
 
 // ============ ROUTES CHÍNH ============
+
+// Tạo kế hoạch mới (yêu cầu đăng nhập)
+router.post("/", uploadNone, authMiddleware.requireAuth, controllers.create);
 
 // Lấy danh sách day plans
 router.get("/", uploadNone, controllers.list);
