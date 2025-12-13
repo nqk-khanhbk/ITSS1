@@ -143,7 +143,7 @@ L.Icon.Default.mergeOptions({
 // };
 
 // Component cho một điểm trên timeline
-function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDesc, expandedNote }) {
+function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDesc, expandedNote, navigate }) {
   return (
     <Card 
       sx={{ 
@@ -197,6 +197,7 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
               variant="contained"
               size="small"
               sx={{ textTransform: "none", minWidth: 80 }}
+              onClick={() => location.placeId && navigate(`/places/${location.placeId}`)}
             >
               表示
             </Button>
@@ -342,6 +343,7 @@ function ScheduleDetail() {
               description: item.description || "",
               note: item.caution || "",
               hasWarning: !!item.caution,
+              placeId: item.place_id, // Add place_id for navigation
             })),
             warnings: rawData.items
               .filter(item => item.caution)
@@ -978,6 +980,7 @@ function ScheduleDetail() {
                         onToggleNote={handleToggleNote}
                         expandedDesc={expandedDesc[item.id]}
                         expandedNote={expandedNote[item.id]}
+                        navigate={navigate}
                       />
                     </Box>
                   </Stack>
