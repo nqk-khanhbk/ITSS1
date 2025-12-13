@@ -631,23 +631,23 @@ module.exports.getFavoriteDayPlans = async (req, res) => {
                 : null,
           }));
 
-        return {
-          like_id: like._id,
-          day_plan_id: dayPlan._id,
-          title: dayPlan.title,
-          description: dayPlan.description || "",
-          images: images,
-          places: places,
-          places_count: places.length,
-          total_likes: totalLikes,
-          tags: dayPlan.tags || [],
-          author: {
-            user_id: dayPlan.user_id?._id,
-            fullName: dayPlan.user_id?.fullName || "Unknown",
-            avatar: dayPlan.user_id?.avatar || "",
-          },
-          liked_at: like.created_at,
-        };
+          return {
+            like_id: like._id,
+            day_plan_id: dayPlan._id,
+            title: dayPlan.title,
+            description: dayPlan.description || "",
+            images: images,
+            places: places,
+            places_count: places.length,
+            total_likes: totalLikes,
+            tags: dayPlan.tags || [],
+            author: {
+              user_id: dayPlan.user_id?._id,
+              fullName: dayPlan.user_id?.fullName || "Unknown",
+              avatar: dayPlan.user_id?.avatar || "",
+            },
+            liked_at: like.created_at,
+          };
       })
     );
 
