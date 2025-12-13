@@ -135,6 +135,15 @@
   width: 80px;
 }
 
+/* Force 24-hour format */
+.time-input::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+}
+
 .time-separator {
   color: #999;
   font-weight: bold;

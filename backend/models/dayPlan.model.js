@@ -11,7 +11,7 @@ const itemSchema = new mongoose.Schema(
     end_time: String,
     link: String,
     image: String,
-    note: String,
+    description: String,
     caution: String,
     transport: String,
     // Chuyển cost sang price_range
@@ -32,8 +32,8 @@ const dayPlanSchema = new mongoose.Schema(
       required: true,
     },
     title: { type: String, required: true },
-    description: String,
-    note: String,
+    // description: String,
+    note: String, // Ghi chú chung cho cả kế hoạch
     date: Date,
     cover_image: String,
     tags: [String],

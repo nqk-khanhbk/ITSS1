@@ -93,11 +93,11 @@ module.exports.list = async (req, res) => {
     // Build base filter
     const filter = {};
 
-    // Search by title or description
+    // Search by title or note
     if (search) {
       filter.$or = [
         { title: new RegExp(search, "i") },
-        { description: new RegExp(search, "i") },
+        { note: new RegExp(search, "i") },
       ];
     }
 
@@ -288,7 +288,7 @@ module.exports.list = async (req, res) => {
           title: dayPlan.title,
           price_range: priceRangeStr,
           age: ageRangeStr,
-          description: dayPlan.description || "",
+          note: dayPlan.note || "",
           province: Array.from(provinces),
           area: Array.from(areas),
           tags: dayPlan.tags || [],
@@ -386,159 +386,27 @@ module.exports.detail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Get day plan with populated data
-    const dayPlan = await DayPlan.findById(id)
-      .populate("user_id", "fullName avatar")
-      .populate("items.place_id")
-      .lean();
+    // Get day plan without populate to get raw data
+    const dayPlan = await DayPlan.findById(id).lean();
 
     if (!dayPlan) {
-      return res.status(404).json({ message: "Không tìm thấy kế hoạch" });
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy kế hoạch",
+      });
     }
-
-    // Count likes
-    const likesCount = await Like.countDocuments({
-      day_plan_id: dayPlan._id,
-    });
-
-    // Check if current user has liked (if authenticated)
-    const isLiked = req.user?._id
-      ? !!(await Like.exists({
-          day_plan_id: dayPlan._id,
-          user_id: req.user._id,
-        }))
-      : false;
-
-    // Calculate total price range from items
-    let totalMinPrice = 0;
-    let totalMaxPrice = 0;
-    let hasPrice = false;
-
-    // Calculate age range intersection
-    let ageMin = null;
-    let ageMax = null;
-
-    dayPlan.items.forEach((item) => {
-      // Price calculation
-      if (item.price_range) {
-        if (
-          item.price_range.min !== undefined &&
-          item.price_range.min !== null
-        ) {
-          totalMinPrice += item.price_range.min;
-          hasPrice = true;
-        }
-        if (
-          item.price_range.max !== undefined &&
-          item.price_range.max !== null
-        ) {
-          totalMaxPrice += item.price_range.max;
-        } else if (item.price_range.min !== undefined) {
-          totalMaxPrice += item.price_range.min;
-        }
-      }
-
-      // Age range intersection
-      if (item.place_id?.age_limit) {
-        const placeAgeMin = item.place_id.age_limit.min;
-        const placeAgeMax = item.place_id.age_limit.max;
-
-        if (placeAgeMin !== undefined && placeAgeMin !== null) {
-          ageMin =
-            ageMin === null ? placeAgeMin : Math.max(ageMin, placeAgeMin);
-        }
-
-        if (placeAgeMax !== undefined && placeAgeMax !== null) {
-          ageMax =
-            ageMax === null ? placeAgeMax : Math.min(ageMax, placeAgeMax);
-        }
-      }
-    });
-
-    // Format price range
-    let priceRangeStr = "Miễn phí";
-    if (hasPrice) {
-      if (totalMinPrice === totalMaxPrice) {
-        priceRangeStr = `${totalMinPrice.toLocaleString("vi-VN")}đ`;
-      } else {
-        priceRangeStr = `${totalMinPrice.toLocaleString(
-          "vi-VN"
-        )}đ - ${totalMaxPrice.toLocaleString("vi-VN")}đ`;
-      }
-    }
-
-    // Format age range
-    let ageRangeStr = "Mọi lứa tuổi";
-    if (ageMin !== null || ageMax !== null) {
-      if (ageMin !== null && ageMax !== null) {
-        if (ageMin === ageMax) {
-          ageRangeStr = `${ageMin} tuổi`;
-        } else if (ageMax < ageMin) {
-          ageRangeStr = "Không phù hợp";
-        } else {
-          ageRangeStr = `${ageMin} - ${ageMax} tuổi`;
-        }
-      } else if (ageMin !== null) {
-        ageRangeStr = `Từ ${ageMin} tuổi`;
-      } else if (ageMax !== null) {
-        ageRangeStr = `Đến ${ageMax} tuổi`;
-      }
-    }
-
-    // Get time range from first and last items
-    const firstItem = dayPlan.items[0];
-    const lastItem = dayPlan.items[dayPlan.items.length - 1];
-    const timeRange =
-      firstItem?.start_time && lastItem?.end_time
-        ? `${firstItem.start_time}-${lastItem.end_time}`
-        : null;
-
-    // Build timeline
-    const timeline = dayPlan.items.map((item, index) => ({
-      id: item._id,
-      name: item.custom_place_name || item.place_id?.name || "",
-      time: item.start_time || "",
-      duration: calculateDuration(item.start_time, item.end_time),
-      transport: item.transport || "",
-      image: item.image || item.place_id?.images?.[0]?.url || "",
-      openingHours: formatOpeningHours(item.place_id?.opening_hours),
-      estimatedCost: formatPrice(item.price_range),
-      description: item.place_id?.description || "",
-      note: item.note || "",
-      hasWarning: !!item.caution,
-    }));
-
-    // Build warnings list
-    const warnings = dayPlan.items
-      .filter((item) => item.caution)
-      .map((item) => ({
-        location: item.custom_place_name || item.place_id?.name || "",
-        note: item.caution,
-      }));
 
     return res.status(200).json({
+      success: true,
       message: "Lấy chi tiết thành công",
-      data: {
-        id: dayPlan._id,
-        title: dayPlan.title,
-        user: {
-          name: dayPlan.user_id?.fullName || "Unknown",
-          avatar: dayPlan.user_id?.avatar || "",
-        },
-        likes: likesCount,
-        isLiked: isLiked,
-        overview: {
-          price: priceRangeStr,
-          time: timeRange,
-          age: ageRangeStr,
-        },
-        timeline: timeline,
-        warnings: warnings,
-      },
+      data: dayPlan,
     });
   } catch (err) {
     console.error("Get day plan detail error:", err);
-    return res.status(500).json({ message: "Lỗi máy chủ" });
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi máy chủ",
+    });
   }
 };
 
@@ -631,23 +499,23 @@ module.exports.getFavoriteDayPlans = async (req, res) => {
                 : null,
           }));
 
-          return {
-            like_id: like._id,
-            day_plan_id: dayPlan._id,
-            title: dayPlan.title,
-            description: dayPlan.description || "",
-            images: images,
-            places: places,
-            places_count: places.length,
-            total_likes: totalLikes,
-            tags: dayPlan.tags || [],
-            author: {
-              user_id: dayPlan.user_id?._id,
-              fullName: dayPlan.user_id?.fullName || "Unknown",
-              avatar: dayPlan.user_id?.avatar || "",
-            },
-            liked_at: like.created_at,
-          };
+        return {
+          like_id: like._id,
+          day_plan_id: dayPlan._id,
+          title: dayPlan.title,
+          note: dayPlan.note || "",
+          images: images,
+          places: places,
+          places_count: places.length,
+          total_likes: totalLikes,
+          tags: dayPlan.tags || [],
+          author: {
+            user_id: dayPlan.user_id?._id,
+            fullName: dayPlan.user_id?.fullName || "Unknown",
+            avatar: dayPlan.user_id?.avatar || "",
+          },
+          liked_at: like.created_at,
+        };
       })
     );
 
