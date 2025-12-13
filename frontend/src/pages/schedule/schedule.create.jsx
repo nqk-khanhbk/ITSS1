@@ -332,7 +332,13 @@ const ScheduleCreate = () => {
                         className="time-input"
                         value={item.startTime}
                         onChange={(e) => updateTimelineItem(item.id, 'startTime', e.target.value)}
+                        step="60"
                       />
+                      {item.startTime && (
+                        <span className="time-period">
+                          {parseInt(item.startTime.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                        </span>
+                      )}
                     </div>
                     <span className="time-separator">-</span>
                     <div className="time-input-group">
@@ -342,7 +348,13 @@ const ScheduleCreate = () => {
                         className="time-input"
                         value={item.endTime}
                         onChange={(e) => updateTimelineItem(item.id, 'endTime', e.target.value)}
+                        step="60"
                       />
+                      {item.endTime && (
+                        <span className="time-period">
+                          {parseInt(item.endTime.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="timeline-actions">

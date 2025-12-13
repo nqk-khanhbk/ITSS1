@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -133,54 +133,74 @@ const API_BASE_URL = "http://localhost:3000/api";
 
 // Component cho một điểm trên timeline
 function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDesc, expandedNote }) {
-  const getTransportIcon = (transport) => {
-    switch (transport) {
-      case "walk":
-        return <DirectionsWalkIcon fontSize="small" />;
-      case "bus":
-        return <DirectionsBusIcon fontSize="small" />;
-      case "bike":
-        return <DirectionsBikeIcon fontSize="small" />;
-      case "car":
-        return <DirectionsCarIcon fontSize="small" />;
-      default:
-        return <DirectionsWalkIcon fontSize="small" />;
-    }
-  };
-
   return (
-    <Card sx={{ mb: 2, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-      <Box sx={{ position: "relative" }}>
-        <CardMedia
-          component="img"
-          height="180"
-          image={location.image}
-          alt={location.name}
-          sx={{ objectFit: "cover" }}
-        />
-        {location.hasWarning && (
-          <Chip
-            icon={<WarningAmberIcon />}
-            label="Lưu ý"
-            size="small"
-            color="warning"
-            sx={{ position: "absolute", top: 8, right: 8 }}
-          />
-        )}
-      </Box>
-      <CardContent>
-        <Stack spacing={1.5}>
-          <Typography variant="h6" fontWeight={600}>
-            {location.name}
-          </Typography>
+    <Card 
+      sx={{ 
+        display: 'flex',
+        mb: 0,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        borderRadius: 2,
+        overflow: 'visible',
+        position: 'relative'
+      }}
+    >
+      {/* Thumbnail Image */}
+      <CardMedia
+        component="img"
+        sx={{ width: 160, height: '100%', objectFit: "cover" }}
+        image={location.image}
+        alt={location.name}
+      />
 
-          <Stack direction="row" spacing={2} flexWrap="wrap">
-            <Chip
-              icon={<AccessTimeIcon />}
-              label={location.openingHours}
+      {/* Warning Badge */}
+      {location.hasWarning && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 8,
+            left: 8,
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            bgcolor: "#ff9800",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "2px solid #fff",
+            zIndex: 2
+          }}
+        >
+          <Typography sx={{ color: "#fff", fontSize: 16, fontWeight: 700 }}>!</Typography>
+        </Box>
+      )}
+
+      {/* Content */}
+      <CardContent sx={{ flex: 1, p: 2, "&:last-child": { pb: 2 } }}>
+        <Stack spacing={1.5}>
+          {/* Title and Button */}
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6" fontWeight={600} sx={{ flex: 1 }}>
+              {location.name}
+            </Typography>
+            <Button
+              variant="contained"
               size="small"
-              variant="outlined"
-            />
+              sx={{ textTransform: "none", minWidth: 80 }}
+            >
+              表示
+            </Button>
+          </Stack>
+
+          {/* Start Time, End Time and Cost */}
+          <Stack direction="row" spacing={2} flexWrap="wrap">
+            {location.startTime && (
+              <Chip
+                icon={<AccessTimeIcon />}
+                label={`${location.startTime} - ${location.endTime || ''}`}
+                size="small"
+                variant="outlined"
+              />
+            )}
             <Chip
               icon={<AttachMoneyIcon />}
               label={location.estimatedCost}
@@ -190,52 +210,66 @@ function TimelineCard({ location, onToggleDescription, onToggleNote, expandedDes
             />
           </Stack>
 
-          {/* Mô tả */}
+          {/* Description Section */}
           <Box>
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                Mô tả
+            <Stack 
+              direction="row" 
+              alignItems="center" 
+              justifyContent="space-between"
+              sx={{ 
+                cursor: 'pointer',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' },
+                p: 0.5,
+                borderRadius: 1
+              }}
+              onClick={() => onToggleDescription(location.id)}
+            >
+              <Typography variant="body2" fontWeight={600}>
+                説明
               </Typography>
-              <IconButton size="small" onClick={() => onToggleDescription(location.id)}>
+              <IconButton size="small">
                 {expandedDesc ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </IconButton>
             </Stack>
             <Collapse in={expandedDesc}>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, pl: 0.5 }}>
                 {location.description}
               </Typography>
             </Collapse>
           </Box>
 
-          {/* Ghi chú */}
+          {/* Note Section */}
           {location.note && (
             <Box>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Stack 
+                direction="row" 
+                alignItems="center" 
+                justifyContent="space-between"
+                sx={{ 
+                  cursor: 'pointer',
+                  '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' },
+                  p: 0.5,
+                  borderRadius: 1
+                }}
+                onClick={() => onToggleNote(location.id)}
+              >
                 <Stack direction="row" alignItems="center" spacing={0.5}>
                   <WarningAmberIcon fontSize="small" color="warning" />
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Lưu ý
+                  <Typography variant="body2" fontWeight={600}>
+                    注意
                   </Typography>
                 </Stack>
-                <IconButton size="small" onClick={() => onToggleNote(location.id)}>
+                <IconButton size="small">
                   {expandedNote ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </IconButton>
               </Stack>
               <Collapse in={expandedNote}>
-                <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
+                <Typography variant="body2" color="warning.main" sx={{ mt: 1, pl: 0.5 }}>
                   {location.note}
                 </Typography>
               </Collapse>
             </Box>
           )}
-
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ alignSelf: "flex-start", textTransform: "none" }}
-          >
-            Xem chi tiết
-          </Button>
         </Stack>
       </CardContent>
     </Card>
@@ -252,6 +286,7 @@ function ScheduleDetail() {
   const [likesCount, setLikesCount] = useState(0);
   const [expandedDesc, setExpandedDesc] = useState({});
   const [expandedNote, setExpandedNote] = useState({});
+  const [relatedPlaces, setRelatedPlaces] = useState([]);
 
   // Fetch schedule data from API
   useEffect(() => {
@@ -261,10 +296,77 @@ function ScheduleDetail() {
         const response = await axios.get(`${API_BASE_URL}/day-plans/${id}`);
         
         if (response.data && response.data.data) {
-          setScheduleData(response.data.data);
-          setLiked(response.data.data.isLiked);
-          setLikesCount(response.data.data.likes || 0);
-          // If user logged in, ensure like status is correct by calling check endpoint
+          const rawData = response.data.data;
+          
+          // Transform API response to match component's expected structure
+          const transformedData = {
+            id: rawData._id,
+            title: rawData.title,
+            user: {
+              name: "User", // Will be populated from user_id if needed
+              avatar: "",
+            },
+            overview: {
+              price: calculateTotalPriceRange(rawData.items),
+              time: getTimeRange(rawData.items),
+              age: rawData.target_age || "Mọi lứa tuổi",
+              locations: rawData.items.length,
+              note: rawData.note || ""
+            },
+            timeline: rawData.items.map((item, index) => ({
+              id: item._id,
+              type: "location",
+              name: item.custom_place_name || "Địa điểm",
+              time: item.start_time,
+              startTime: item.start_time,
+              endTime: item.end_time,
+              duration: calculateDuration(item.start_time, item.end_time),
+              transport: mapTransport(item.transport),
+              transportText: item.transport || "",
+              image: item.image || "https://via.placeholder.com/800",
+              openingHours: "N/A",
+              estimatedCost: formatPriceRange(item.price_range),
+              description: item.description || "",
+              note: item.caution || "",
+              hasWarning: !!item.caution,
+            })),
+            warnings: rawData.items
+              .filter(item => item.caution)
+              .map(item => ({
+                location: item.custom_place_name || "Địa điểm",
+                note: item.caution
+              }))
+          };
+          
+          setScheduleData(transformedData);
+          
+          // Fetch related places
+          const placeIds = rawData.items
+            .map(item => item.place_id)
+            .filter(placeId => placeId); // Filter out null/undefined
+          
+          if (placeIds.length > 0) {
+            try {
+              const placesPromises = placeIds.map(placeId => 
+                axios.get(`${API_BASE_URL}/places/${placeId}`)
+              );
+              const placesResponses = await Promise.all(placesPromises);
+              const places = placesResponses
+                .map(res => res.data?.data)
+                .filter(place => place) // Filter out failed requests
+                .map(place => ({
+                  id: place._id,
+                  name: place.name,
+                  image: place.images?.[0]?.url || "https://via.placeholder.com/300",
+                  category: place.category_id?.name || "Địa điểm"
+                }));
+              setRelatedPlaces(places);
+            } catch (err) {
+              console.error('Error fetching related places:', err);
+            }
+          }
+          
+          // Check like status if user logged in
           try {
             const userStr = getCookie('user');
             if (userStr) {
@@ -272,7 +374,6 @@ function ScheduleDetail() {
               const chk = await checkLikeDayPlan(user._id, id);
               if (chk && chk.data && typeof chk.data.is_liked !== 'undefined') {
                 setLiked(!!chk.data.is_liked);
-                // prefer server count if provided
                 if (typeof chk.data.total_likes === 'number') setLikesCount(chk.data.total_likes);
               }
             }
@@ -293,6 +394,67 @@ function ScheduleDetail() {
     }
   }, [id]);
 
+  // Helper functions for data transformation
+  const calculateDuration = (startTime, endTime) => {
+    if (!startTime || !endTime) return "";
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    const diffMinutes = endMinutes - startMinutes;
+
+    if (diffMinutes <= 0) return "";
+
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+
+    if (hours === 0) return `${minutes} phút`;
+    if (minutes === 0) return `${hours} giờ`;
+    return `${hours} giờ ${minutes} phút`;
+  };
+
+  const formatPriceRange = (priceRange) => {
+    if (!priceRange || (!priceRange.min && !priceRange.max)) return "Miễn phí";
+    if (priceRange.min === priceRange.max || !priceRange.max) {
+      return `${priceRange.min.toLocaleString()}đ`;
+    }
+    return `${priceRange.min.toLocaleString()}đ - ${priceRange.max.toLocaleString()}đ`;
+  };
+
+  const calculateTotalPriceRange = (items) => {
+    if (!items || items.length === 0) return "Miễn phí";
+    let totalMin = 0;
+    let totalMax = 0;
+    items.forEach(item => {
+      if (item.price_range) {
+        totalMin += item.price_range.min || 0;
+        totalMax += item.price_range.max || item.price_range.min || 0;
+      }
+    });
+    if (totalMin === 0 && totalMax === 0) return "Miễn phí";
+    if (totalMin === totalMax) return `${totalMin.toLocaleString()}đ`;
+    return `${totalMin.toLocaleString()}đ - ${totalMax.toLocaleString()}đ`;
+  };
+
+  const getTimeRange = (items) => {
+    if (!items || items.length === 0) return "-";
+    const firstTime = items[0]?.start_time;
+    const lastTime = items[items.length - 1]?.end_time;
+    if (!firstTime || !lastTime) return "-";
+    return `${firstTime} - ${lastTime}`;
+  };
+
+  const mapTransport = (transport) => {
+    const transportMap = {
+      "Ô tô": "car",
+      "Xe máy": "bike",
+      "Đi bộ": "walk",
+      "Xe bus": "bus",
+      "Xe đạp": "bike"
+    };
+    return transportMap[transport] || "walk";
+  };
+
   const handleToggleDescription = (id) => {
     setExpandedDesc((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -304,15 +466,15 @@ function ScheduleDetail() {
   const getTransportIcon = (transport) => {
     switch (transport) {
       case "walk":
-        return <DirectionsWalkIcon sx={{ color: "#1976d2" }} />;
+        return <DirectionsWalkIcon sx={{ color: "#333", fontSize: 24 }} />;
       case "bus":
-        return <DirectionsBusIcon sx={{ color: "#1976d2" }} />;
+        return <DirectionsBusIcon sx={{ color: "#333", fontSize: 24 }} />;
       case "bike":
-        return <DirectionsBikeIcon sx={{ color: "#1976d2" }} />;
+        return <DirectionsBikeIcon sx={{ color: "#333", fontSize: 24 }} />;
       case "car":
-        return <DirectionsCarIcon sx={{ color: "#1976d2" }} />;
+        return <DirectionsCarIcon sx={{ color: "#333", fontSize: 24 }} />;
       default:
-        return <DirectionsWalkIcon sx={{ color: "#1976d2" }} />;
+        return <DirectionsWalkIcon sx={{ color: "#333", fontSize: 24 }} />;
     }
   };
 
@@ -408,138 +570,205 @@ function ScheduleDetail() {
         <Paper
           sx={{
             mb: 2,
-            p: 2,
+            p: 3,
             overflowX: "auto",
-            bgcolor: "#ddd",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            bgcolor: "#fff",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={0}
+          <Box
             sx={{
-              minWidth: "max-content",
               position: "relative",
+              minWidth: "max-content",
+              height: 180,
+              display: "flex",
+              alignItems: "center",
             }}
           >
-            {scheduleData.timeline.map((item, index) => (
-              <Box key={item.id} sx={{ position: "relative", display: "flex", alignItems: "center" }}>
-                {/* Location Item */}
-                <Stack alignItems="center" spacing={0.5} sx={{ minWidth: 120, px: 1 }}>
-                  {/* Icon */}
-                  <Tooltip title={item.note || ""} arrow placement="top">
+            {/* Horizontal Line */}
+            <Box
+              sx={{
+                position: "absolute",
+                left: 60,
+                right: 60,
+                top: "50%",
+                height: 2,
+                bgcolor: "#333",
+                zIndex: 0,
+              }}
+            />
+
+            {/* Container for all points */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                px: 2,
+              }}
+            >
+              {/* Start Point - Home */}
+              <Stack alignItems="center" spacing={0.5} sx={{ zIndex: 1, minWidth: 80 }}>
+                <HomeIcon sx={{ fontSize: 40, color: "#333" }} />
+                <Typography variant="caption" fontWeight={600} sx={{ color: "#333", fontSize: "0.75rem" }}>
+                  自宅
+                </Typography>
+              </Stack>
+
+              {/* All timeline items with transport text between */}
+              {scheduleData.timeline.map((item, index) => {
+                const isAbove = index % 2 === 0;
+                
+                return (
+                  <React.Fragment key={item.id}>
+                    {/* Transport Text before location point */}
                     <Box
                       sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: "50%",
-                        bgcolor: "#fff",
-                        border: "3px solid #1976d2",
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: isAbove ? "flex-start" : "flex-end",
                         justifyContent: "center",
+                        minWidth: 100,
                         position: "relative",
-                        cursor: item.note ? "pointer" : "default",
-                        "&:hover": {
-                          transform: item.note ? "scale(1.1)" : "none",
-                          transition: "transform 0.2s",
-                        },
                       }}
                     >
-                      <LocationOnIcon sx={{ color: "#1976d2", fontSize: 28 }} />
-                      {item.hasWarning && (
-                        <Box
+                      <Stack 
+                        alignItems="center" 
+                        spacing={0.3} 
+                        sx={{ 
+                          mt: isAbove ? 1 : 0,
+                          mb: isAbove ? 0 : 1,
+                        }}
+                      >
+                        {/* Transport Icon */}
+                        <Box sx={{ order: isAbove ? 2 : 1 }}>
+                          {getTransportIcon(item.transport)}
+                        </Box>
+                        {/* Transport Text */}
+                        <Typography
+                          variant="caption"
                           sx={{
-                            position: "absolute",
-                            bottom: -4,
-                            right: -4,
-                            width: 20,
-                            height: 20,
-                            borderRadius: "50%",
-                            bgcolor: "#ff9800",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            border: "2px solid #fff",
+                            color: "#333",
+                            fontSize: "0.65rem",
+                            order: isAbove ? 1 : 2,
                           }}
                         >
-                          <WarningAmberIcon sx={{ fontSize: 12, color: "#fff" }} />
-                        </Box>
-                      )}
+                          {item.transportText}
+                        </Typography>
+                      </Stack>
                     </Box>
-                  </Tooltip>
 
-                  {/* Time */}
-                  <Typography variant="caption" fontWeight={700} sx={{ color: "#1976d2" }}>
-                    {item.time}
-                  </Typography>
-
-                  {/* Name */}
-                  <Typography
-                    variant="caption"
-                    align="center"
-                    sx={{
-                      maxWidth: 100,
-                      fontSize: "0.7rem",
-                      lineHeight: 1.2,
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                </Stack>
-
-                {/* Transport Arrow */}
-                {index < scheduleData.timeline.length - 1 && (
-                  <Stack alignItems="center" spacing={0.5} sx={{ mx: 2 }}>
-                    {/* Transport Icon */}
+                    {/* Location Point */}
                     <Box
                       sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        bgcolor: "#e3f2fd",
                         display: "flex",
+                        flexDirection: "column",
                         alignItems: "center",
-                        justifyContent: "center",
+                        zIndex: 1,
+                        position: "relative",
+                        minWidth: 120,
                       }}
                     >
-                      {getTransportIcon(scheduleData.timeline[index + 1].transport)}
-                    </Box>
-
-                    {/* Duration */}
-                    {scheduleData.timeline[index + 1].duration && (
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                        {scheduleData.timeline[index + 1].duration}
-                      </Typography>
-                    )}
-
-                    {/* Arrow Line */}
-                    <Box
-                      sx={{
-                        width: 120,
-                        height: 2,
-                        bgcolor: "#1976d2",
-                        position: "relative",
-                        "&::after": {
-                          content: '""',
+                      <Stack
+                        alignItems="center"
+                        spacing={0.5}
+                        sx={{
                           position: "absolute",
-                          right: -6,
-                          top: -4,
-                          width: 0,
-                          height: 0,
-                          borderLeft: "6px solid #1976d2",
-                          borderTop: "5px solid transparent",
-                          borderBottom: "5px solid transparent",
-                        },
-                      }}
-                    />
-                  </Stack>
-                )}
-              </Box>
-            ))}
-          </Stack>
+                          top: isAbove ? "-80px" : "20px",
+                          minWidth: 120,
+                        }}
+                      >
+                        {/* Time - positioned based on location */}
+                        <Typography
+                          variant="caption"
+                          fontWeight={600}
+                          sx={{
+                            color: "#333",
+                            fontSize: "0.75rem",
+                            order: isAbove ? 1 : 2,
+                          }}
+                        >
+                          {item.time}
+                        </Typography>
+
+                        {/* Location Icon with optional warning */}
+                        <Tooltip title={item.note || ""} arrow placement="top">
+                          <Box
+                            sx={{
+                              position: "relative",
+                              cursor: item.note ? "pointer" : "default",
+                              order: isAbove ? 2 : 1,
+                            }}
+                          >
+                            <LocationOnIcon
+                              sx={{
+                                fontSize: 40,
+                                color: "#333",
+                              }}
+                            />
+                            {item.hasWarning && (
+                              <Box
+                                sx={{
+                                  position: "absolute",
+                                  bottom: 2,
+                                  right: -6,
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: "50%",
+                                  bgcolor: "#333",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  border: "2px solid #fff",
+                                }}
+                              >
+                                <Typography sx={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>!</Typography>
+                              </Box>
+                            )}
+                          </Box>
+                        </Tooltip>
+
+                        {/* Location Name */}
+                        <Typography
+                          variant="caption"
+                          align="center"
+                          sx={{
+                            maxWidth: 120,
+                            fontSize: "0.7rem",
+                            lineHeight: 1.2,
+                            wordBreak: "break-word",
+                            color: "#333",
+                            order: 3,
+                          }}
+                        >
+                          {item.name}
+                        </Typography>
+                      </Stack>
+
+                      {/* Dot on the line */}
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          bgcolor: "#333",
+                          border: "2px solid #fff",
+                        }}
+                      />
+                    </Box>
+                  </React.Fragment>
+                );
+              })}
+
+              {/* End Point - Home */}
+              <Stack alignItems="center" spacing={0.5} sx={{ zIndex: 1, minWidth: 80 }}>
+                <HomeIcon sx={{ fontSize: 40, color: "#333" }} />
+                <Typography variant="caption" fontWeight={600} sx={{ color: "#333", fontSize: "0.75rem" }}>
+                  帰宅
+                </Typography>
+              </Stack>
+            </Box>
+          </Box>
         </Paper>
 
         {/* User info */}
@@ -550,60 +779,128 @@ function ScheduleDetail() {
           </Typography>
         </Stack>
         <Grid container spacing={3}>
-          {/* Cột trái - Timeline */}
           {/* Timeline */}
           <Grid item xs={12} md={9} sx={{ flex: 1 }}>
             <Box>
+              {/* Start Point - Home */}
+              <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                <Stack alignItems="center" sx={{ minWidth: 80 }}>
+                  <Box
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: "50%",
+                      bgcolor: "#4caf50",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 2px 8px rgba(76,175,80,0.3)",
+                    }}
+                  >
+                    <HomeIcon sx={{ color: "#fff", fontSize: 28 }} />
+                  </Box>
+                </Stack>
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                  <Paper sx={{ px: 3, py: 1.5, bgcolor: '#f5f5f5' }}>
+                    <Typography variant="body1" fontWeight={600}>
+                      出発 (自宅)
+                    </Typography>
+                  </Paper>
+                </Box>
+              </Stack>
+
+              {/* Timeline Items */}
               {scheduleData.timeline.map((item, index) => (
                 <Box key={item.id} sx={{ position: "relative" }}>
-                  {/* Timeline line */}
-                  {index < scheduleData.timeline.length - 1 && (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        left: 20,
-                        top: 50,
-                        bottom: -20,
-                        width: 2,
-                        bgcolor: "#ddd",
-                        zIndex: 0,
-                      }}
-                    />
-                  )}
+                  {/* Vertical line */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      left: 24,
+                      top: 0,
+                      bottom: index === scheduleData.timeline.length - 1 ? '50%' : 0,
+                      width: 2,
+                      bgcolor: "#ddd",
+                      zIndex: 0,
+                    }}
+                  />
 
-                  <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-                    {/* Time & Icon */}
-                    <Stack alignItems="center" sx={{ minWidth: 80 }}>
-                      <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-                        {item.time}
-                      </Typography>
+                  {/* Transport Info */}
+                  {item.transport && (
+                    <Stack 
+                      direction="row" 
+                      spacing={2} 
+                      sx={{ mb: 2, pl: '90px' }}
+                      alignItems="center"
+                    >
                       <Box
                         sx={{
                           width: 40,
                           height: 40,
                           borderRadius: "50%",
                           bgcolor: "#fff",
-                          border: "2px solid #1976d2",
+                          border: "2px solid #e0e0e0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: 'absolute',
+                          left: 5,
+                          zIndex: 1,
+                        }}
+                      >
+                        {getTransportIcon(item.transport)}
+                      </Box>
+                    </Stack>
+                  )}
+
+                  {/* Location Point and Card */}
+                  <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
+                    {/* Location Icon */}
+                    <Stack alignItems="center" sx={{ minWidth: 80 }}>
+                      <Box
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: "50%",
+                          bgcolor: "#fff",
+                          border: "3px solid #1976d2",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           zIndex: 1,
+                          position: 'relative',
                         }}
                       >
-                        <LocationOnIcon sx={{ color: "#1976d2" }} />
+                        <LocationOnIcon sx={{ color: "#1976d2", fontSize: 28 }} />
+                        {/* Location Number Badge */}
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: -8,
+                            right: -8,
+                            width: 24,
+                            height: 24,
+                            borderRadius: '50%',
+                            bgcolor: '#1976d2',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            border: '2px solid #fff'
+                          }}
+                        >
+                          {index + 1}
+                        </Box>
                       </Box>
-                      {item.transport && (
-                        <Box sx={{ mt: 1 }}>{getTransportIcon(item.transport)}</Box>
-                      )}
-                      {item.duration && (
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                          {item.duration}
-                        </Typography>
-                      )}
                     </Stack>
 
-                    {/* Content */}
+                    {/* Time and Location Card */}
                     <Box sx={{ flex: 1 }}>
+                      <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: '#1976d2' }}>
+                        {item.time}
+                      </Typography>
                       <TimelineCard
                         location={item}
                         onToggleDescription={handleToggleDescription}
@@ -615,6 +912,33 @@ function ScheduleDetail() {
                   </Stack>
                 </Box>
               ))}
+
+              {/* End Point - Home */}
+              <Stack direction="row" spacing={2}>
+                <Stack alignItems="center" sx={{ minWidth: 80 }}>
+                  <Box
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: "50%",
+                      bgcolor: "#f44336",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 2px 8px rgba(244,67,54,0.3)",
+                    }}
+                  >
+                    <HomeIcon sx={{ color: "#fff", fontSize: 28 }} />
+                  </Box>
+                </Stack>
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                  <Paper sx={{ px: 3, py: 1.5, bgcolor: '#f5f5f5' }}>
+                    <Typography variant="body1" fontWeight={600}>
+                      帰宅
+                    </Typography>
+                  </Paper>
+                </Box>
+              </Stack>
             </Box>
           </Grid>
           {/* Cột phải - Thông tin & Bản đồ */}
@@ -629,26 +953,37 @@ function ScheduleDetail() {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <AttachMoneyIcon color="action" />
                     <Typography variant="body2">
-                      <strong>Chi phí:</strong> {scheduleData.overview.price}
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <AccessTimeIcon color="action" />
-                    <Typography variant="body2">
-                      <strong>Thời gian:</strong> {scheduleData.overview.time}
+                      {scheduleData.overview.price}
                     </Typography>
                   </Stack>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <GroupIcon color="action" />
                     <Typography variant="body2">
-                      <strong>Độ tuổi:</strong> {scheduleData.overview.age}
+                      {scheduleData.overview.age}
                     </Typography>
                   </Stack>
-                  <Divider />
-                  {scheduleData.warnings.length > 0 && (
-                    <Typography variant="body2" color="warning.main">
-                      ⚠️ Có {scheduleData.warnings.length} lưu ý quan trọng
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <AccessTimeIcon color="action" />
+                    <Typography variant="body2">
+                      {scheduleData.overview.time}
                     </Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <LocationOnIcon color="action" />
+                    <Typography variant="body2">
+                      {scheduleData.overview.locations}場所
+                    </Typography>
+                  </Stack>
+                  {scheduleData.overview.note && (
+                    <>
+                      <Divider />
+                      <Stack direction="row" spacing={1} alignItems="flex-start">
+                        <WarningAmberIcon color="warning" fontSize="small" sx={{ mt: 0.3 }} />
+                        <Typography variant="body2">
+                          {scheduleData.overview.note}
+                        </Typography>
+                      </Stack>
+                    </>
                   )}
                 </Stack>
               </Paper>
@@ -703,6 +1038,48 @@ function ScheduleDetail() {
 
 
         </Grid>
+
+        {/* Related Places Section */}
+        {relatedPlaces.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
+              関連する場所
+            </Typography>
+            <Grid container spacing={3}>
+              {relatedPlaces.map((place) => (
+                <Grid item xs={12} sm={6} md={3} key={place.id}>
+                  <Card 
+                    sx={{ 
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.15)'
+                      }
+                    }}
+                    onClick={() => navigate(`/places/${place.id}`)}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={place.image}
+                      alt={place.name}
+                      sx={{ objectFit: "cover" }}
+                    />
+                    <CardContent>
+                      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
+                        {place.category}
+                      </Typography>
+                      <Typography variant="h6" fontWeight={600} noWrap>
+                        {place.name}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
       </Box>
     </Box>
   );
