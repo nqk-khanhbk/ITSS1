@@ -39,7 +39,7 @@ function Register() {
     try {
       // Validation
       if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
-        toast.error('Vui lòng nhập đầy đủ thông tin');
+        toast.error('すべての項目を入力してください');
         setLoading(false);
         return;
       }
@@ -47,28 +47,28 @@ function Register() {
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
-        toast.error('Email không hợp lệ');
+        toast.error('メールアドレスの形式が正しくありません');
         setLoading(false);
         return;
       }
 
       // Validate password length
       if (formData.password.length < 6) {
-        toast.error('Mật khẩu phải có ít nhất 6 ký tự');
+        toast.error('パスワードは6文字以上で入力してください');
         setLoading(false);
         return;
       }
 
       // Check password match
       if (formData.password !== formData.confirmPassword) {
-        toast.error('Mật khẩu xác nhận không khớp');
+        toast.error('確認用パスワードが一致しません');
         setLoading(false);
         return;
       }
 
       // Check terms agreement
       if (!agreedToTerms) {
-        toast.error('Vui lòng đồng ý với Điều khoản Sử dụng và Chính sách Quyền riêng tư');
+        toast.error('利用規約とプライバシーポリシーに同意してください');
         setLoading(false);
         return;
       }
@@ -86,18 +86,18 @@ function Register() {
 
       // Kiểm tra thành công dựa vào response có data hoặc message thành công
       if (response && (response.data || response.message === 'Đăng ký thành công')) {
-        toast.success('Đăng ký thành công!');
+        toast.success('登録に成功しました。');
         
         // Chuyển hướng đến trang login sau 1 giây
         setTimeout(() => {
           navigate('/login');
         }, 1000);
       } else {
-        toast.error(response.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+        toast.error(response.message || '登録に失敗しました。もう一度お試しください。');
       }
     } catch (error) {
       console.error('Register error:', error);
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.');
+      toast.error('エラーが発生しました。しばらくしてからもう一度お試しください。');
     } finally {
       setLoading(false);
     }
@@ -137,7 +137,7 @@ function Register() {
                 mb: 4
               }}
             >
-              Đăng ký
+              新規登録
             </Typography>
 
             {/* Form */}
@@ -145,7 +145,7 @@ function Register() {
               {/* Full Name Input */}
               <TextField
                 fullWidth
-                label="Tên"
+                label="氏名"
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
@@ -158,7 +158,7 @@ function Register() {
               {/* Email Input */}
               <TextField
                 fullWidth
-                label="Email"
+                label="メールアドレス"
                 name="email"
                 type="email"
                 value={formData.email}
@@ -171,7 +171,7 @@ function Register() {
               {/* Password Input */}
               <TextField
                 fullWidth
-                label="Mật khẩu"
+                label="パスワード"
                 name="password"
                 type="password"
                 value={formData.password}
@@ -184,7 +184,7 @@ function Register() {
               {/* Confirm Password Input */}
               <TextField
                 fullWidth
-                label="Xác nhận mật khẩu"
+                label="パスワード（確認）"
                 name="confirmPassword"
                 type="password"
                 value={formData.confirmPassword}
@@ -205,14 +205,14 @@ function Register() {
                 }
                 label={
                   <Typography variant="body2">
-                    Tôi đồng ý với{' '}
                     <span style={{ color: '#667eea', fontWeight: 600 }}>
-                      Điều khoản Sử dụng
+                      利用規約
                     </span>
-                    {' '}và{' '}
+                    と
                     <span style={{ color: '#667eea', fontWeight: 600 }}>
-                      Chính sách Quyền riêng tư
+                      プライバシーポリシー
                     </span>
+                    に同意します
                   </Typography>
                 }
                 sx={{ mb: 3 }}
@@ -242,13 +242,13 @@ function Register() {
                   }
                 }}
               >
-                {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                {loading ? '登録中...' : '登録'}
               </Button>
 
               {/* Login Link */}
               <Box sx={{ textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
-                  Đã có tài khoản?{' '}
+                  すでにアカウントをお持ちですか？{' '}
                   <Link
                     to="/login"
                     style={{
@@ -257,7 +257,7 @@ function Register() {
                       textDecoration: 'none'
                     }}
                   >
-                    Đăng nhập
+                    ログイン
                   </Link>
                 </Typography>
               </Box>

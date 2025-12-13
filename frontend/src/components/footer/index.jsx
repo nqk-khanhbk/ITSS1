@@ -15,18 +15,18 @@ function Footer() {
           {/* Left: Website info */}
           <Grid item xs={12} md={3}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: '#90caf9', mb: 2 }}>
-              Hà Nội Cuối Tuần
+              ハノイ週末
             </Typography>
             <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)' }}>
-              Khám phá những địa điểm vui chơi, giải trí tuyệt vời ở Hà Nội. 
-              <br />   
-              Cùng nhau tận hưởng cuối tuần ý nghĩa!
+              ハノイの素敵な遊び・エンタメスポットを発見しよう。
+              <br />
+              みんなで充実した週末を楽しみましょう！
             </Typography>
             <Stack spacing={1.5} sx={{ mt: 2.5 }}>
               <Stack direction="row" spacing={1.2} alignItems="flex-start">
                 <LocationOnIcon fontSize="small" sx={{ mt: 0.3, color: '#64b5f6' }} />
                 <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'rgba(255,255,255,0.9)' }}>
-                  Đại học Bách Khoa Hà Nội<br />1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội
+                  ハノイ工科大学<br />1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội
                 </Typography>
               </Stack>
               <Stack direction="row" spacing={1.2} alignItems="center">
@@ -38,7 +38,7 @@ function Footer() {
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <PhoneIcon fontSize="small" sx={{ color: '#64b5f6' }} />
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Hotline: 0344 570 115
+                  ホットライン: 0344 570 115
                 </Typography>
               </Stack>
             </Stack>
@@ -103,26 +103,26 @@ function Footer() {
           {/* Column 2: Discover */}
           <Grid item xs={12} sm={8} md={2.25}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: '#90caf9', mb: 2 }}>
-              Khám Phá
+              探索
             </Typography>
             <Stack spacing={1.2}>
               <MuiLink href="/places" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Địa điểm nổi bật
+                注目スポット
               </MuiLink>
               <MuiLink href="/events" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Sự kiện cuối tuần
+                週末イベント
               </MuiLink>
               <MuiLink href="/food" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Ẩm thực đặc sắc
+                グルメ
               </MuiLink>
               <MuiLink href="/parks" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Công viên & Hồ
+                公園・湖
               </MuiLink>
               <MuiLink href="/museums" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Bảo tàng & Di tích
+                博物館・史跡
               </MuiLink>
               <MuiLink href="/shopping" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Mua sắm
+                ショッピング
               </MuiLink>
             </Stack>
           </Grid>
@@ -130,23 +130,23 @@ function Footer() {
           {/* Column 3: About */}
           <Grid item xs={12} sm={6} md={2.25}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: '#90caf9', mb: 2 }}>
-              Về Chúng Tôi
+              私たちについて
             </Typography>
             <Stack spacing={1.2}>
               <MuiLink href="/about" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Giới thiệu
+                会社概要
               </MuiLink>
               <MuiLink href="/mission" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Sứ mệnh
+                ミッション
               </MuiLink>
               <MuiLink href="/blog" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Blog chia sẻ
+                ブログ
               </MuiLink>
               <MuiLink href="/partners" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Đối tác
+                パートナー
               </MuiLink>
               <MuiLink href="/careers" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Tuyển dụng
+                採用情報
               </MuiLink>
             </Stack>
           </Grid>
@@ -154,15 +154,15 @@ function Footer() {
           {/* Column 4: Dev team */}
           <Grid item xs={12} sm={6} md={2.25}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: '#90caf9', mb: 2 }}>
-              Đội Phát Triển
+              開発チーム
             </Typography>
             <Stack spacing={0.8}>
-              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Le Thai Son - TL</Typography>
-              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Nguyen Quoc Khanh - SL</Typography>
+              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Lê Thái Sơn - TL</Typography>
+              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Nguyễn Quốc Khánh - SL</Typography>
               <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Cao Thành Đạt</Typography>
-              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Tran Doan Huy</Typography>
-              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Vu Thi Quynh Nhu</Typography>
-              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Nguyen Duc Dai Duong</Typography>
+              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Trần Doãn Huy</Typography>
+              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Vũ Thị Quỳnh Như</Typography>
+              <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Nguyễn Đức Đại Dương</Typography>
               <Typography variant="body2" sx={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>Phạm Long Khánh</Typography>
             </Stack>
           </Grid>
@@ -170,23 +170,23 @@ function Footer() {
           {/* Column 5: Support & Policy */}
           <Grid item xs={12} sm={6} md={2.25}>
             <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: '#90caf9', mb: 2 }}>
-              Hỗ Trợ & Chính Sách
+              サポート・ポリシー
             </Typography>
             <Stack spacing={1.2}>
               <MuiLink href="/guide" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Hướng dẫn sử dụng
+                ご利用ガイド
               </MuiLink>
               <MuiLink href="/faq" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Câu hỏi thường gặp
+                よくある質問
               </MuiLink>
               <MuiLink href="/terms" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Điều khoản sử dụng
+                利用規約
               </MuiLink>
               <MuiLink href="/privacy" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Chính sách bảo mật
+                プライバシーポリシー
               </MuiLink>
               <MuiLink href="/contact" underline="hover" sx={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', '&:hover': { color: '#90caf9' } }}>
-                Liên hệ
+                お問い合わせ
               </MuiLink>
             </Stack>
           </Grid>
@@ -195,7 +195,7 @@ function Footer() {
         <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.15)' }} />
 
         <Typography variant="body2" align="center" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-          &copy; {new Date().getFullYear()} Hà Nội Cuối Tuần. Khám phá thủ đô xinh đẹp mỗi ngày.
+          &copy; {new Date().getFullYear()} ハノイ週末。美しい首都を毎日発見しよう。
         </Typography>
       </Container>
     </Box>

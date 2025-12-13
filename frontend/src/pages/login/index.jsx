@@ -29,7 +29,7 @@ function Login() {
     try {
       // Validation
       if (!email || !password) {
-        toast.error('Vui lòng nhập đầy đủ email và mật khẩu');
+        toast.error('メールアドレスとパスワードを入力してください');
         setLoading(false);
         return;
       }
@@ -37,7 +37,7 @@ function Login() {
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        toast.error('Email không hợp lệ');
+        toast.error('メールアドレスの形式が正しくありません');
         setLoading(false);
         return;
       }
@@ -66,18 +66,18 @@ function Login() {
           }
         }
 
-        toast.success('Đăng nhập thành công!');
+        toast.success('ログインに成功しました。');
         
         // Chuyển hướng sau 1 giây
         setTimeout(() => {
           navigate('/');
         }, 1000);
       } else {
-        toast.error(response.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+        toast.error(response.message || 'ログインに失敗しました。入力内容をご確認ください。');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.');
+      toast.error('エラーが発生しました。しばらくしてからもう一度お試しください。');
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ function Login() {
               mb: 4
             }}
           >
-            Đăng nhập
+            ログイン
           </Typography>
 
           {/* Form */}
@@ -125,7 +125,7 @@ function Login() {
             {/* Email Input */}
             <TextField
               fullWidth
-              label="Gmail"
+              label="メールアドレス"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -138,7 +138,7 @@ function Login() {
             {/* Password Input */}
             <TextField
               fullWidth
-              label="Mật khẩu"
+              label="パスワード"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -157,7 +157,7 @@ function Login() {
                     color="primary"
                   />
                 }
-                label="Nhớ mật khẩu"
+                label="ログイン情報を保存する"
               />
               <Link
                 to="/forgot-password"
@@ -168,7 +168,7 @@ function Login() {
                   fontSize: '16px'
                 }}
               >
-                Quên mật khẩu?
+                パスワードをお忘れですか？
               </Link>
             </Box>
 
@@ -196,13 +196,13 @@ function Login() {
                 }
               }}
             >
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {loading ? 'ログイン中...' : 'ログイン'}
             </Button>
 
             {/* Register Link */}
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
-                Chưa có tài khoản?{' '}
+                アカウントをお持ちでない方は{' '}
                 <Link
                   to="/register"
                   style={{
@@ -211,7 +211,7 @@ function Login() {
                     textDecoration: 'none'
                   }}
                 >
-                  Đăng ký
+                  新規登録
                 </Link>
               </Typography>
             </Box>
