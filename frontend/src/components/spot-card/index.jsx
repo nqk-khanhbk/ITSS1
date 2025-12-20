@@ -87,7 +87,7 @@ const SpotCard = ({ spot, isFavorite: isFavoriteProp, onToggleFavorite }) => {
         component="img"
         height="160"
         image={getImageUrl()}
-        alt={spot.name || 'No name'}
+        alt={spot.name || '名称未設定'}
         sx={{ objectFit: 'cover' }}
       />
 
@@ -116,12 +116,12 @@ const SpotCard = ({ spot, isFavorite: isFavoriteProp, onToggleFavorite }) => {
               mr: 1
             }}
           >
-            {spot.name || 'Địa điểm chưa có tên'}
+            {spot.name || '名称未設定のスポット'}
           </Typography>
           <IconButton
             size="small"
             sx={{ p: 0.5, mt: -0.5 }}
-            aria-label="Yêu thích"
+            aria-label="お気に入り"
             onClick={async (e) => {
               e.stopPropagation();
               const userStr = getCookie('user');
@@ -156,14 +156,14 @@ const SpotCard = ({ spot, isFavorite: isFavoriteProp, onToggleFavorite }) => {
             {spot.rating || 0}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            ({spot.total_reviews || 0} đánh giá)
+            ({spot.total_reviews || 0} レビュー)
           </Typography>
         </Stack>
 
         {/* Giá + Mô tả */}
         <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="primary" fontWeight={500} sx={{ mb: 0.5 }}>
-            💰 {spot.price_range || 'Liên hệ'}
+            💰 {spot.price_range || '詳細はお問い合わせください'}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.4 }}>
             {spot.description
@@ -187,7 +187,7 @@ const SpotCard = ({ spot, isFavorite: isFavoriteProp, onToggleFavorite }) => {
             mt: 'auto' // Đẩy nút xuống cuối
           }}
         >
-          Xem chi tiết
+          詳細を見る
         </Button>
       </CardContent>
     </Card>

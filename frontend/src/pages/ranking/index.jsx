@@ -75,7 +75,7 @@ const RankingPage = () => {
   const toggleFavorite = async (placeId) => {
     const userStr = getCookie('user');
     if (!userStr) {
-      alert('Vui lòng đăng nhập để sử dụng chức năng này');
+      alert('この機能を使用するにはログインしてください');
       return;
     }
 
@@ -95,7 +95,7 @@ const RankingPage = () => {
       setFavorites(newFavorites);
     } catch (err) {
       console.error('Toggle favorite error', err);
-      alert('Có lỗi xảy ra khi cập nhật yêu thích');
+      alert('お気に入りの更新中にエラーが発生しました');
     }
   };
 
@@ -114,7 +114,7 @@ const RankingPage = () => {
   if (loading && places.length === 0) {
     return (
       <Container sx={{ py: 4 }}>
-        <Typography variant="h5" align="center">Đang tải dữ liệu...</Typography>
+        <Typography variant="h5" align="center">読み込み中...</Typography>
       </Container>
     );
   }
@@ -142,7 +142,7 @@ const RankingPage = () => {
           {/* Main Content */}
           <Grid item xs={12} md={8} sx={{ width: '100%', maxWidth: '1000px' }}>
             <Typography variant="h5" fontWeight={600} sx={{ mb: 3, textAlign: 'center' }}>
-              Xếp hạng địa điểm
+              スポットランキング
             </Typography>
 
             {/* Ranking Items */}
@@ -150,7 +150,7 @@ const RankingPage = () => {
               {places.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="h6" color="text.secondary">
-                    Không có xếp hạng theo yêu cầu
+                    該当するランキングがありません
                   </Typography>
                 </Box>
               ) : (
@@ -243,7 +243,7 @@ const RankingPage = () => {
                           {place.rating}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          ({place.total_reviews} đánh giá)
+                          ({place.total_reviews} レビュー)
                         </Typography>
                       </Stack>
 
@@ -278,7 +278,7 @@ const RankingPage = () => {
                       onClick={() => navigate(`/places/${place._id}`)}
                       sx={{ textTransform: 'none', minWidth: 120, alignSelf: 'flex-start' }}
                     >
-                      Xem chi tiết
+                      詳細を見る
                     </Button>
                   </Paper>
                 );

@@ -62,7 +62,7 @@ const PlaceDetail = () => {
                 }
             } catch (err) {
                 console.error("Fetch Detail Error:", err);
-                setError("Không thể tải chi tiết địa điểm. Vui lòng kiểm tra ID.");
+                setError("詳細を読み込めません。IDをご確認ください。");
             } finally {
                 setLoading(false);
             }
@@ -70,7 +70,7 @@ const PlaceDetail = () => {
         fetchData();
     }, [id]);
 
-    if (loading) return <Container sx={{ mt: 5 }}><Typography align="center">Đang tải...</Typography></Container>;
+    if (loading) return <Container sx={{ mt: 5 }}><Typography align="center">読み込み中...</Typography></Container>;
     if (error) return <Container sx={{ mt: 5 }}><Typography align="center" color="error">{error}</Typography></Container>;
     if (!placeData) return null;
     
@@ -106,7 +106,7 @@ const PlaceDetail = () => {
                         
                         <Box sx={{ mt: 3 }}>
                             {/* Mục 5: Chi tiết & Mô tả */}
-                            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>Mô tả chi tiết</Typography>
+                            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>詳細説明</Typography>
                             <Typography variant="body1" color="text.secondary">{description}</Typography>
                         </Box>
                         
@@ -114,10 +114,10 @@ const PlaceDetail = () => {
                         <Box sx={{ mt: 4 }}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
                                 <Typography variant="h6" fontWeight={600}>
-                                    Đánh giá & Bình luận
+                                    レビュー・コメント
                                 </Typography>
                                 <Chip 
-                                    label={`Điểm: ${rating} / 5.0 (${total_reviews} reviews)`} 
+                                    label={`スコア: ${rating} / 5.0 (${total_reviews} 件のレビュー)`} 
                                     color="primary" 
                                     sx={{ fontWeight: 'bold' }}
                                 />
@@ -136,7 +136,7 @@ const PlaceDetail = () => {
                                                 
                                                 <Box>
                                                     <Typography variant="subtitle2" fontWeight={600}>
-                                                        {review.user_id?.fullName || 'Người dùng ẩn danh'}
+                                                        {review.user_id?.fullName || '匿名ユーザー'}
                                                     </Typography>
                                                     {/* Rating Stars */}
                                                     <Typography variant="caption" color="gold">
@@ -146,7 +146,7 @@ const PlaceDetail = () => {
                                                         {review.comment}
                                                     </Typography>
                                                     <Typography variant="caption" color="text.secondary">
-                                                        Ngày: {new Date(review.created_at).toLocaleDateString()}
+                                                        日付: {new Date(review.created_at).toLocaleDateString()}
                                                     </Typography>
                                                 </Box>
                                             </Stack>
@@ -154,12 +154,12 @@ const PlaceDetail = () => {
                                     ))
                                 ) : (
                                     <Typography variant="body2" color="text.secondary">
-                                        Chưa có đánh giá nào. Hãy là người đầu tiên!
+                                        まだレビューがありません。最初のレビューを書きましょう！
                                     </Typography>
                                 )}
 
                                 <Button variant="outlined" sx={{ alignSelf: 'flex-start', textTransform: 'none', mt: 3 }}>
-                                    Xem tất cả {total_reviews} bình luận
+                                    すべての{total_reviews}件のコメントを見る
                                 </Button>
                             </Stack>
                         </Box>
@@ -171,31 +171,31 @@ const PlaceDetail = () => {
                             {/* Mục 4: Thông tin cơ bản & Ticket/Add Favorite */}
                             <Paper sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
                                 <Stack spacing={2}>
-                                    <Typography variant="h6" fontWeight={700}>Thông tin cơ bản</Typography>
+                                    <Typography variant="h6" fontWeight={700}>基本情報</Typography>
                                     <Divider />
                                     
                                     {/* Giá */}
                                     <Stack direction="row" alignItems="center" spacing={1}>
                                         <AttachMoneyIcon color="primary" />
-                                        <Typography variant="body1">Giá: {price_range || 'Liên hệ'}</Typography>
+                                        <Typography variant="body1">料金: {price_range || '詳細はお問い合わせください'}</Typography>
                                     </Stack>
                                     
                                     {/* Giờ mở cửa (Chưa có trong data, thêm mock) */}
                                     <Stack direction="row" alignItems="center" spacing={1}>
                                         <AccessTimeIcon color="primary" />
-                                        <Typography variant="body1">Giờ mở cửa: 8:00 - 18:00</Typography>
+                                        <Typography variant="body1">営業時間: 8:00 - 18:00</Typography>
                                     </Stack>
                                     
                                     {/* Độ tuổi */}
                                     <Stack direction="row" alignItems="center" spacing={1}>
                                         <PeopleIcon color="primary" />
-                                        <Typography variant="body1">Độ tuổi: {age_limit?.min || '0'} - {age_limit?.max || 'Mọi lứa tuổi'}</Typography>
+                                        <Typography variant="body1">対象年齢: {age_limit?.min || '0'} - {age_limit?.max || '全年齢'}</Typography>
                                     </Stack>
 
                                     {/* Địa chỉ */}
                                     <Stack direction="row" alignItems="flex-start" spacing={1}>
                                         <LocationOnIcon color="primary" sx={{ mt: 0.5 }}/>
-                                        <Typography variant="body1">Địa chỉ: {address || 'Đang cập nhật'}</Typography>
+                                        <Typography variant="body1">住所: {address || '更新中'}</Typography>
                                     </Stack>
 
                                     <Divider />
@@ -210,7 +210,7 @@ const PlaceDetail = () => {
                                             onClick={async () => {
                                                 const userStr = getCookie('user');
                                                 if (!userStr) {
-                                                    alert('Vui lòng đăng nhập để sử dụng chức năng này');
+                                                    alert('この機能を使用するにはログインしてください');
                                                     return;
                                                 }
                                                 const user = JSON.parse(userStr);
@@ -224,11 +224,11 @@ const PlaceDetail = () => {
                                                     }
                                                 } catch (err) {
                                                     console.error('Toggle favorite error', err);
-                                                    alert('Có lỗi xảy ra khi cập nhật yêu thích');
+                                                    alert('お気に入り更新中にエラーが発生しました');
                                                 }
                                             }}
                                         >
-                                            {isFavorite ? 'Bỏ Yêu thích' : 'Thêm Yêu thích'}
+                                            {isFavorite ? 'お気に入りを外す' : 'お気に入りに追加'}
                                         </Button>
                                     </Stack>
                                 </Stack>
@@ -236,7 +236,7 @@ const PlaceDetail = () => {
                             
                             {/* Mục 6: Map Area */}
                             <Box>
-                                <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>Địa điểm trên bản đồ</Typography>
+                                <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>地図上の場所</Typography>
                                 <Box sx={{ height: 300, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
                                     {location?.coordinates ? (
                                         <>
@@ -256,12 +256,12 @@ const PlaceDetail = () => {
                                             </MapContainer>
                                             
                                             <Button variant="outlined" size="small" fullWidth sx={{ mt: 1 }}>
-                                                Cách di chuyển
+                                                行き方
                                             </Button>
                                         </>
                                     ) : (
                                         <Typography align="center" sx={{ pt: 10 }} color="text.secondary">
-                                            Không có dữ liệu tọa độ
+                                            位置情報がありません
                                         </Typography>
                                     )}
                                 </Box>
@@ -269,7 +269,7 @@ const PlaceDetail = () => {
                             
                             {/* Mục 9: Địa điểm liên quan */}
                             <Box>
-                                <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>Địa điểm liên quan</Typography>
+                                <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>関連スポット</Typography>
                                 <Stack spacing={2}>
                                     {related_places?.map((place) => (
                                         <Paper 

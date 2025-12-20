@@ -112,7 +112,7 @@ function Register() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#f5f5f5',
+          background: 'linear-gradient(135deg, #e3f2fd 0%, #fce4ec 50%, #fff8e1 100%)',
           py: 4
         }}
       >
@@ -122,7 +122,20 @@ function Register() {
             sx={{
               p: 4,
               borderRadius: 3,
-              backgroundColor: 'white'
+              backgroundColor: 'white',
+              border: '2px solid transparent',
+              backgroundClip: 'padding-box',
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #f48fb1, #4fc3f7, #ffca28)',
+                borderRadius: '3px 3px 0 0'
+              }
             }}
           >
             {/* Title */}
@@ -133,11 +146,14 @@ function Register() {
               align="center"
               sx={{
                 fontWeight: 700,
-                color: 'primary.main',
+                background: 'linear-gradient(135deg, #4fc3f7 0%, #ffca28 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
                 mb: 4
               }}
             >
-              新規登録
+              🦊 新規登録
             </Typography>
 
             {/* Form */}
@@ -200,16 +216,21 @@ function Register() {
                   <Checkbox
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    color="primary"
+                    sx={{
+                      color: '#f48fb1',
+                      '&.Mui-checked': {
+                        color: '#f48fb1'
+                      }
+                    }}
                   />
                 }
                 label={
                   <Typography variant="body2">
-                    <span style={{ color: '#667eea', fontWeight: 600 }}>
+                    <span style={{ color: '#f48fb1', fontWeight: 600 }}>
                       利用規約
                     </span>
                     と
-                    <span style={{ color: '#667eea', fontWeight: 600 }}>
+                    <span style={{ color: '#4fc3f7', fontWeight: 600 }}>
                       プライバシーポリシー
                     </span>
                     に同意します
@@ -230,16 +251,20 @@ function Register() {
                   fontWeight: 600,
                   fontSize: 16,
                   textTransform: 'none',
-                  borderRadius: 2,
+                  borderRadius: 50,
                   mb: 3,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #4fc3f7 0%, #ffca28 100%)',
+                  boxShadow: '0 4px 15px rgba(79,195,247,0.4)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #64387d 100%)'
+                    background: 'linear-gradient(135deg, #29b6f6 0%, #ffa726 100%)',
+                    boxShadow: '0 6px 20px rgba(79,195,247,0.5)',
+                    transform: 'translateY(-2px)'
                   },
                   '&:disabled': {
                     background: '#ccc',
                     color: '#666'
-                  }
+                  },
+                  transition: 'all 0.3s ease'
                 }}
               >
                 {loading ? '登録中...' : '登録'}
@@ -252,7 +277,7 @@ function Register() {
                   <Link
                     to="/login"
                     style={{
-                      color: '#667eea',
+                      color: '#f48fb1',
                       fontWeight: 600,
                       textDecoration: 'none'
                     }}

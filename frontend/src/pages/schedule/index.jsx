@@ -193,7 +193,7 @@ export default function Schedule() {
           justifyContent="space-between"
         >
           <Typography variant="h5" fontWeight={700} sx={{ color: "#1e1e1e" }}>
-            Lịch trình đề xuất
+            おすすめスケジュール
           </Typography>
           <Button
             variant="contained"
@@ -207,7 +207,7 @@ export default function Schedule() {
               boxShadow: "0 4px 10px rgba(25,118,210,0.35)",
             }}
           >
-            Tạo lịch trình mới
+            新しいスケジュールを作成
           </Button>
         </Stack>
       </Box>
@@ -217,13 +217,13 @@ export default function Schedule() {
           {loading ? (
             <Stack alignItems="center" justifyContent="center" sx={{ py: 8 }}>
               <Typography variant="body1" color="text.secondary">
-                Đang tải dữ liệu...
+                読み込み中...
               </Typography>
             </Stack>
           ) : plansData.length === 0 ? (
             <Stack alignItems="center" justifyContent="center" sx={{ py: 8 }}>
               <Typography variant="body1" color="text.secondary">
-                Không có lịch trình nào
+                スケジュールがありません
               </Typography>
             </Stack>
           ) : (
@@ -308,10 +308,10 @@ export default function Schedule() {
                           {plan.province[0]} · {plan.area[0]}
                         </Typography>
                         <Typography variant="caption" sx={{ color: "#6b7280" }}>
-                          Giá: {plan.price_range}
+                          料金: {plan.price_range}
                         </Typography>
                         <Typography variant="caption" sx={{ color: "#6b7280" }}>
-                          Độ tuổi: {plan.age}
+                          対象年齢: {plan.age}
                         </Typography>
                       </Stack>
                     </Stack>
@@ -332,7 +332,7 @@ export default function Schedule() {
                         fontSize: 12,
                       }}
                     >
-                      Xem ngay
+                      詳細を見る
                     </Button>
                     <Typography variant="caption" sx={{ color: "#9ca3af" }}>
                      #{plan?.area?.[0]?.replace(/\s+/g, "") ?? ""}
@@ -371,12 +371,12 @@ export default function Schedule() {
               <Stack direction="row" alignItems="center" spacing={1}>
                 <SearchIcon sx={{ color: "#1976d2" }} />
                 <Typography variant="subtitle1" fontWeight={700}>
-                  Tìm kiếm
+                  検索
                 </Typography>
               </Stack>
               <TextField
                 size="small"
-                placeholder="Nhập tên địa điểm"
+                placeholder="場所名を入力"
                 fullWidth
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -397,122 +397,122 @@ export default function Schedule() {
               />
               <Divider sx={{ borderColor: "#e5e7eb" }} />
               <Typography variant="subtitle2" fontWeight={600}>
-                Lọc theo địa chỉ
+                住所で絞り込む
               </Typography>
               <TextField
                 select
                 size="small"
-                label="Tỉnh / Thành phố"
+                label="都道府県"
                 value={selectedProvince}
                 onChange={(e) => setSelectedProvince(e.target.value)}
               >
-                <MenuItem value="">Tất cả</MenuItem>
-                <MenuItem value="Hà Nội">Hà Nội</MenuItem>
-                <MenuItem value="Tp. HCM">Tp. HCM</MenuItem>
-                <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
+                <MenuItem value="">すべて</MenuItem>
+                <MenuItem value="Hà Nội">ハノイ</MenuItem>
+                <MenuItem value="Tp. HCM">ホーチミン</MenuItem>
+                <MenuItem value="Đà Nẵng">ダナン</MenuItem>
               </TextField>
               <TextField
                 select
                 size="small"
-                label="Quận / Huyện"
+                label="区・郡"
                 value={selectedArea}
                 onChange={(e) => setSelectedArea(e.target.value)}
               >
-                <MenuItem value="">Tất cả</MenuItem>
-                <MenuItem value="Hoàn Kiếm">Hoàn Kiếm</MenuItem>
-                <MenuItem value="Hai Bà Trưng">Hai Bà Trưng</MenuItem>
-                <MenuItem value="Tây Hồ">Tây Hồ</MenuItem>
+                <MenuItem value="">すべて</MenuItem>
+                <MenuItem value="Hoàn Kiếm">ホアンキエム</MenuItem>
+                <MenuItem value="Hai Bà Trưng">ハイバーチュン</MenuItem>
+                <MenuItem value="Tây Hồ">タイホー</MenuItem>
               </TextField>
               <Divider sx={{ borderColor: "#e5e7eb" }} />
               <Typography variant="subtitle2" fontWeight={600}>
-                Bộ lọc bổ sung
+                追加フィルター
               </Typography>
 
-              {/* Khoảng giá */}
+              {/* 料金範囲 */}
               <FormControl component="fieldset">
                 <FormLabel
                   component="legend"
                   sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#374151", mb: 1 }}
                 >
-                  Khoảng giá
+                  料金範囲
                 </FormLabel>
                 <RadioGroup value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
                   <FormControlLabel
                     value="all"
                     control={<Radio size="small" />}
-                    label="Tất cả"
+                    label="すべて"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="free"
                     control={<Radio size="small" />}
-                    label="Miễn phí"
+                    label="無料"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="0-150k"
                     control={<Radio size="small" />}
-                    label="0đ - 150.000đ"
+                    label="0円 - 1,000円"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="150k-600k"
                     control={<Radio size="small" />}
-                    label="150.000đ - 600.000đ"
+                    label="1,000円 - 4,000円"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="250k-1m"
                     control={<Radio size="small" />}
-                    label="250.000đ - 1.000.000đ"
+                    label="1,500円 - 6,000円"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="1m+"
                     control={<Radio size="small" />}
-                    label="Trên 1.000.000đ"
+                    label="6,000円以上"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                 </RadioGroup>
               </FormControl>
 
-              {/* Độ tuổi */}
+              {/* 対象年齢 */}
               <FormControl component="fieldset">
                 <FormLabel
                   component="legend"
                   sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#374151", mb: 1 }}
                 >
-                  Độ tuổi
+                  対象年齢
                 </FormLabel>
                 <RadioGroup value={ageRange} onChange={(e) => setAgeRange(e.target.value)}>
                   <FormControlLabel
                     value="all"
                     control={<Radio size="small" />}
-                    label="Tất cả"
+                    label="すべて"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="0-5"
                     control={<Radio size="small" />}
-                    label="0 - 5 tuổi"
+                    label="0 - 5歳"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="5-12"
                     control={<Radio size="small" />}
-                    label="5 - 12 tuổi"
+                    label="5 - 12歳"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="12-18"
                     control={<Radio size="small" />}
-                    label="12 - 18 tuổi"
+                    label="12 - 18歳"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                   <FormControlLabel
                     value="18+"
                     control={<Radio size="small" />}
-                    label="Trên 18 tuổi"
+                    label="18歳以上"
                     sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                   />
                 </RadioGroup>
@@ -530,14 +530,14 @@ export default function Schedule() {
                   onClick={handleApplyFilters}
                   sx={{ textTransform: "none", borderRadius: 2 }}
                 >
-                  Lọc
+                  絞り込む
                 </Button>
                 <Button
                   variant="outlined"
                   onClick={handleResetFilters}
                   sx={{ textTransform: "none", color: "#6b4c00" }}
                 >
-                  Đặt lại
+                  リセット
                 </Button>
               </Stack>
             </Stack>
