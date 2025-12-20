@@ -32,29 +32,29 @@ const FilterSidebar = ({ tempFilterState, setTempFilterState, onApply, onReset }
             overflowY: 'auto'
         }}
         >
-      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>Bộ lọc chi tiết</Typography>
+      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>詳細フィルター</Typography>
 
       {/* Độ tuổi */}
-      <Typography variant="subtitle2" fontWeight="bold">Độ tuổi</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">対象年齢</Typography>
       <RadioGroup
         value={tempFilterState.age_ranges || 'all'}
         onChange={(e) => handleChange('age_ranges', e.target.value)}
       >
-        <FormControlLabel value="all" control={<Radio />} label="Tất cả" />
-        <FormControlLabel value="1-5" control={<Radio />} label="1 - 5 tuổi" />
-        <FormControlLabel value="6-12" control={<Radio />} label="6 - 12 tuổi" />
+        <FormControlLabel value="all" control={<Radio />} label="すべて" />
+        <FormControlLabel value="1-5" control={<Radio />} label="1 - 5歳" />
+        <FormControlLabel value="6-12" control={<Radio />} label="6 - 12歳" />
       </RadioGroup>
       <Divider sx={{ my: 2 }} />
 
       {/* Loại hình hoạt động */}
-      <Typography variant="subtitle2" fontWeight="bold">Loại hình hoạt động</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">アクティビティタイプ</Typography>
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Select
           labelId="category-label"
           value={tempFilterState.category_ids || 'all'}
           onChange={(e) => handleChange('category_ids', e.target.value)}
         >
-          <MenuItem value="all">Tất cả</MenuItem>
+          <MenuItem value="all">すべて</MenuItem>
           {categories.map(c => (
             <MenuItem key={c._id} value={c._id}>{c.name}</MenuItem>
           ))}
@@ -63,14 +63,14 @@ const FilterSidebar = ({ tempFilterState, setTempFilterState, onApply, onReset }
       <Divider sx={{ my: 2 }} />
 
       {/* Vị trí */}
-      <Typography variant="subtitle2" fontWeight="bold">Vị trí</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">エリア</Typography>
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Select
         labelId="district-label"
         value={tempFilterState.districts || 'all'}
         onChange={(e) => handleChange('districts', e.target.value)}
         >
-        <MenuItem value="all">Tất cả</MenuItem>
+        <MenuItem value="all">すべて</MenuItem>
         {[
             "Hoàn Kiếm","Hai Bà Trưng","Ba Đình","Cầu Giấy","Tây Hồ","Hoàng Mai","Hà Đông",
             "Nam Từ Liêm","Bắc Từ Liêm","Long Biên","Gia Lâm","Đông Anh","Khu vực khác"
@@ -80,51 +80,51 @@ const FilterSidebar = ({ tempFilterState, setTempFilterState, onApply, onReset }
       <Divider sx={{ my: 2 }} />
 
       {/* Giá */}
-      <Typography variant="subtitle2" fontWeight="bold">Khoảng giá</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">料金範囲</Typography>
       <RadioGroup
         value={tempFilterState.price_filter || 'all'}
         onChange={(e) => handleChange('price_filter', e.target.value)}
       >
-        <FormControlLabel value="all" control={<Radio />} label="Tất cả" />
-        <FormControlLabel value="free" control={<Radio />} label="Miễn phí" />
-        <FormControlLabel value="under_100k" control={<Radio />} label="Dưới 100,000 VND" />
-        <FormControlLabel value="100k_300k" control={<Radio />} label="100,000 – 300,000 VND" />
-        <FormControlLabel value="over_300k" control={<Radio />} label="Trên 300,000 VND" />
+        <FormControlLabel value="all" control={<Radio />} label="すべて" />
+        <FormControlLabel value="free" control={<Radio />} label="無料" />
+        <FormControlLabel value="under_100k" control={<Radio />} label="10万VND未満" />
+        <FormControlLabel value="100k_300k" control={<Radio />} label="10万 – 30万VND" />
+        <FormControlLabel value="over_300k" control={<Radio />} label="30万VND以上" />
       </RadioGroup>
       <Divider sx={{ my: 2 }} />
 
       {/* Thời gian mở cửa */}
-      <Typography variant="subtitle2" fontWeight="bold">Thời gian mở cửa</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">営業時間帯</Typography>
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Select
         labelId="open-time-label"
         value={tempFilterState.open_time || 'all'}
         onChange={(e) => handleChange('open_time', e.target.value)}
         >
-        <MenuItem value="all">Tất cả</MenuItem>
-        <MenuItem value="morning">Mở buổi sáng</MenuItem>
-        <MenuItem value="afternoon">Mở buổi chiều</MenuItem>
-        <MenuItem value="evening">Mở buổi tối</MenuItem>
-        <MenuItem value="all_day">Mở cả ngày</MenuItem>
+        <MenuItem value="all">すべて</MenuItem>
+        <MenuItem value="morning">午前営業</MenuItem>
+        <MenuItem value="afternoon">午後営業</MenuItem>
+        <MenuItem value="evening">夜営業</MenuItem>
+        <MenuItem value="all_day">終日営業</MenuItem>
         </Select>
       </FormControl>
       <Divider sx={{ my: 2 }} />
 
       {/* Mức độ đông đúc */}
-      <Typography variant="subtitle2" fontWeight="bold">Mức độ đông đúc</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">混雑度</Typography>
       <RadioGroup
         value={tempFilterState.crowd_level || 'all'}
         onChange={(e) => handleChange('crowd_level', e.target.value)}
       >
-        <FormControlLabel value="all" control={<Radio />} label="Tất cả" />
-        <FormControlLabel value="low" control={<Radio />} label="Ít người" />
-        <FormControlLabel value="medium" control={<Radio />} label="Trung bình" />
-        <FormControlLabel value="high" control={<Radio />} label="Thường đông" />
+        <FormControlLabel value="all" control={<Radio />} label="すべて" />
+        <FormControlLabel value="low" control={<Radio />} label="空いている" />
+        <FormControlLabel value="medium" control={<Radio />} label="普通" />
+        <FormControlLabel value="high" control={<Radio />} label="混雑" />
       </RadioGroup>
       <Divider sx={{ my: 2 }} />
 
       {/* Tiện ích đi kèm - chọn nhiều */}
-      <Typography variant="subtitle2" fontWeight="bold">Tiện ích đi kèm</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">設備・アメニティ</Typography>
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Select
           labelId="amenities-label"
@@ -152,46 +152,47 @@ const FilterSidebar = ({ tempFilterState, setTempFilterState, onApply, onReset }
       <Divider sx={{ my: 2 }} />
 
       {/* Đánh giá */}
-      <Typography variant="subtitle2" fontWeight="bold">Đánh giá</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">評価</Typography>
       <RadioGroup
         value={tempFilterState.min_rating || 'all'}
         onChange={(e) => handleChange('min_rating', e.target.value)}
       >
-        <FormControlLabel value="all" control={<Radio />} label="Tất cả" />
+        <FormControlLabel value="all" control={<Radio />} label="すべて" />
         <FormControlLabel value="5" control={<Radio />} label="5★" />
-        <FormControlLabel value="4.5" control={<Radio />} label="4.5★ trở lên" />
-        <FormControlLabel value="4" control={<Radio />} label="4★ trở lên" />
+        <FormControlLabel value="4.5" control={<Radio />} label="4.5★ 以上" />
+        <FormControlLabel value="4" control={<Radio />} label="4★ 以上" />
       </RadioGroup>
       <Divider sx={{ my: 2 }} />
 
       {/* Khoảng cách */}
-      <Typography variant="subtitle2" fontWeight="bold">Khoảng cách</Typography>
+      <Typography variant="subtitle2" fontWeight="bold">距離</Typography>
       <RadioGroup
         value={tempFilterState.radius || 'all'}
         onChange={(e) => handleChange('radius', e.target.value)}
       >
-        <FormControlLabel value="all" control={<Radio />} label="Tất cả" />
-        <FormControlLabel value="2" control={<Radio />} label="Dưới 2km" />
-        <FormControlLabel value="5" control={<Radio />} label="Dưới 5km" />
-        <FormControlLabel value="10" control={<Radio />} label="Dưới 10km" />
-        <FormControlLabel value="over_10km" control={<Radio />} label="Trên 10km" />
+        <FormControlLabel value="all" control={<Radio />} label="すべて" />
+        <FormControlLabel value="2" control={<Radio />} label="2km未満" />
+        <FormControlLabel value="5" control={<Radio />} label="5km未満" />
+        <FormControlLabel value="10" control={<Radio />} label="10km未満" />
+        <FormControlLabel value="over_10km" control={<Radio />} label="10km超" />
       </RadioGroup>
 
       {/* Nút hành động */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
         <Button
-            variant="contained"
-            color="primary"
-            onClick={onApply}
+          variant="contained"
+          color="primary"
+          sx={{ mr: 1 }}
+          onClick={onApply}
         >
-            Lọc
+          絞り込む
         </Button>
         <Button
-            variant="outlined"
-            color="secondary"
-            onClick={onReset}
+          variant="outlined"
+          color="secondary"
+          onClick={onReset}
         >
-            Đặt lại
+          リセット
         </Button>
       </Box>
     </Box>

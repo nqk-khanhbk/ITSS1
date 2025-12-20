@@ -18,24 +18,20 @@ const Header = () => {
   };
 
 
-  // Hàm xử lý khi form tìm kiếm được submit (nhấn Enter hoặc bấm nút)
+  // 検索フォームが送信されたときの処理
   const handleSearch = (e) => {
-    e.preventDefault(); // Ngăn chặn trình duyệt reload trang
+    e.preventDefault();
 
     if (searchTerm.trim()) {
-      // Chuyển hướng đến /search và truyền từ khóa qua query parameter (?q=...)
       navigate(`/search?keyword=${searchTerm.trim()}`);
       console.log("Searching for:", `/search?keyword=${searchTerm.trim()}`);
 
     } else {
-      // Nếu không nhập gì, chuyển hướng về trang /search
       navigate('/search');
     }
-    // Tùy chọn: clear input sau khi tìm kiếm
-    // setSearchTerm(''); 
   };
   return (
-    <AppBar position="static" elevation={0} sx={{ bgcolor: 'primary.main' }}>
+    <AppBar position="static" elevation={0} sx={{ background: 'linear-gradient(135deg, #f48fb1 0%, #4fc3f7 50%, #ffca28 100%)' }}>
       <Toolbar sx={{ minHeight: 68, gap: 3 }}>
         {/* Left logo */}
         <Box
@@ -43,33 +39,67 @@ const Header = () => {
           to="/"
           sx={{
             fontWeight: 800,
-            fontSize: 22,
+            fontSize: 24,
             letterSpacing: 1,
             px: 1,
             textDecoration: 'none',
-            color: 'inherit'
+            color: '#1a237e',
+            textShadow: '1px 1px 2px rgba(255,255,255,0.5)',
+            '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' }
           }}
         >
-          LOGO
+          🦊 ハノイ週末
         </Box>
 
         {/* Divider space between logo and nav */}
-        <Divider orientation="vertical" flexItem sx={{ borderColor: alpha('#fff', 0.3) }} />
+        <Divider orientation="vertical" flexItem sx={{ borderColor: alpha('#fff', 0.5) }} />
 
         {/* Navigation group */}
         <Stack direction="row" spacing={3} alignItems="center" sx={{ mr: 2 }}>
           <IconButton
             component={Link}
             to="/"
-            color="inherit"
             size="small"
-            aria-label="Trang chủ"
-            sx={{ bgcolor: alpha('#fff', 0.12), '&:hover': { bgcolor: alpha('#fff', 0.25) } }}
+            aria-label="ホーム"
+            sx={{ 
+              bgcolor: 'rgba(255,255,255,0.5)', 
+              color: '#1a237e',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.8)', transform: 'scale(1.1)' },
+              transition: 'all 0.2s'
+            }}
           >
             <HomeRoundedIcon fontSize="small" />
           </IconButton>
-          <Button component={Link} to="/ranking" color="inherit" size="small" sx={{ fontWeight: 600 }}>Ranking</Button>
-          <Button component={Link} to="/schedule" color="inherit" size="small" sx={{ fontWeight: 600 }}>Lịch trình</Button>
+          <Button 
+            component={Link} 
+            to="/ranking" 
+            size="small" 
+            sx={{ 
+              fontWeight: 700,
+              color: '#1a237e',
+              bgcolor: 'rgba(255,255,255,0.4)',
+              borderRadius: 2,
+              px: 2,
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.7)' } 
+            }}
+          >
+            ランキング
+          </Button>
+          <Button 
+            component={Link} 
+            to="/schedule" 
+            size="small" 
+            sx={{ 
+              fontWeight: 700,
+              color: '#1a237e',
+              bgcolor: 'rgba(255,255,255,0.4)',
+              borderRadius: 2,
+              px: 2,
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.7)' }
+            }}
+          >
+            スケジュール
+          </Button>
         </Stack>
 
         {/* Center search box grows */}
@@ -83,29 +113,36 @@ const Header = () => {
               gap: 1,
               width: '100%',
               maxWidth: 520,
-              px: 1.5,
-              py: 0.75,
+              px: 2,
+              py: 1,
               borderRadius: 50,
-              backgroundColor: alpha('#fff', 0.2),
-              border: '1px solid ' + alpha('#fff', 0.35),
-              transition: 'background-color .2s, box-shadow .2s',
-              '&:hover': { backgroundColor: alpha('#fff', 0.3) },
-              boxShadow: 'inset 0 0 0 1px ' + alpha('#000', 0.05)
+              backgroundColor: alpha('#fff', 0.85),
+              border: '2px solid ' + alpha('#f48fb1', 0.5),
+              transition: 'all .3s ease',
+              '&:hover': { 
+                backgroundColor: '#fff',
+                boxShadow: '0 4px 20px rgba(244,143,177,0.3)'
+              },
+              '&:focus-within': {
+                backgroundColor: '#fff',
+                border: '2px solid #f48fb1',
+                boxShadow: '0 4px 20px rgba(244,143,177,0.4)'
+              }
             })}
           >
-            <SearchIcon fontSize="small" />
+            <SearchIcon fontSize="small" sx={{ color: '#f48fb1' }} />
             <InputBase
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm kiếm..."
+              placeholder="検索..."
               inputProps={{ 'aria-label': 'search' }}
-              sx={{ flex: 1, fontSize: 14 }}
+              sx={{ flex: 1, fontSize: 14, color: '#333' }}
             />
           </Box>
         </Box>
 
         {/* Auth buttons or User Menu */}
         {token ? (
-          <Stack direction="row" spacing={0.5} alignItems="center">
+          <Stack direction="row" spacing={1} alignItems="center">
 
             {/* User Profile Box - Avatar + Name */}
             <Box
@@ -114,39 +151,44 @@ const Header = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1,
-                px: 1.5,
+                px: 2,
                 py: 0.75,
                 cursor: 'pointer',
+                borderRadius: 50,
+                bgcolor: 'rgba(255,255,255,0.6)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.85)' },
+                transition: 'all 0.2s'
               }}
             >
               <Typography
                 variant="body2"
                 sx={{
-                  fontWeight: 600,
-                  color: 'white',
+                  fontWeight: 700,
+                  color: '#1a237e',
                   fontSize: 14
                 }}
               >
-                {fullName || 'User'}
+                {fullName || 'ユーザー'}
               </Typography>
               <IconButton
                 size="small"
                 sx={{
-                  bgcolor: alpha('#fff', 0.12),
-                  '&:hover': { bgcolor: alpha('#fff', 0.25) },
+                  bgcolor: 'rgba(26,35,126,0.1)',
+                  '&:hover': { bgcolor: 'rgba(26,35,126,0.2)' },
                   p: 0.5
                 }}
               >
-                <AccountCircleIcon sx={{ color: 'white', fontSize: 28 }} />
+                <AccountCircleIcon sx={{ color: '#1a237e', fontSize: 28 }} />
               </IconButton>
             </Box>
             {/* Notification Icon */}
             <IconButton
-              color="inherit"
               size="small"
               sx={{
-                bgcolor: alpha('#fff', 0.12),
-                '&:hover': { bgcolor: alpha('#fff', 0.25) }
+                bgcolor: 'rgba(255,255,255,0.6)',
+                color: '#1a237e',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.85)', transform: 'scale(1.1)' },
+                transition: 'all 0.2s'
               }}
             >
               <NotificationsIcon fontSize="small" />
@@ -159,17 +201,23 @@ const Header = () => {
               to="/login"
               size="small"
               variant="outlined"
-              color="inherit"
               sx={{
-                px: 2,
-                borderRadius: 8,
+                px: 2.5,
+                borderRadius: 50,
                 textTransform: 'none',
-                fontWeight: 600,
-                borderColor: alpha('#fff', 0.6),
-                '&:hover': { borderColor: '#fff', backgroundColor: alpha('#fff', 0.15) }
+                fontWeight: 700,
+                color: '#1a237e',
+                bgcolor: 'rgba(255,255,255,0.5)',
+                borderColor: '#1a237e',
+                borderWidth: 2,
+                '&:hover': { 
+                  borderColor: '#1a237e', 
+                  backgroundColor: 'rgba(255,255,255,0.8)',
+                  borderWidth: 2
+                }
               }}
             >
-              Đăng nhập
+              ログイン
             </Button>
             <Button
               size="small"
@@ -177,16 +225,22 @@ const Header = () => {
               component={Link}
               to="/register"
               sx={{
-                px: 2,
-                borderRadius: 8,
+                px: 2.5,
+                borderRadius: 50,
                 textTransform: 'none',
-                fontWeight: 600,
-                background: 'linear-gradient(135deg,#ab47bc,#7e57c2)',
-                boxShadow: 'none',
-                '&:hover': { boxShadow: 'none', background: 'linear-gradient(135deg,#9c27b0,#673ab7)' }
+                fontWeight: 700,
+                color: '#fff',
+                background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
+                boxShadow: '0 4px 15px rgba(233,30,99,0.4)',
+                '&:hover': { 
+                  boxShadow: '0 6px 20px rgba(233,30,99,0.5)', 
+                  background: 'linear-gradient(135deg, #d81b60 0%, #7b1fa2 100%)',
+                  transform: 'translateY(-2px)'
+                },
+                transition: 'all 0.3s'
               }}
             >
-              Đăng ký
+              新規登録
             </Button>
           </Stack>
         )}
