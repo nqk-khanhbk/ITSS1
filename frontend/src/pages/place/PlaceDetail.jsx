@@ -22,6 +22,9 @@ import {
     removeFavoritePlace,
     checkFavoritePlace,
 } from '../../services/favorite.services';
+import CommentSection from '../../components/comments/CommentSection';
+import ReviewDialog from '../../components/reviews/ReviewDialog';
+import ReviewStatsSection from '../../components/reviews/ReviewStatsSection';
 
 // Component chính
 const PlaceDetail = () => {
@@ -32,6 +35,8 @@ const PlaceDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [openReviewDialog, setOpenReviewDialog] = useState(false);
+    const [refreshStatsKey, setRefreshStatsKey] = useState(0);
 
     // Lấy dữ liệu
     useEffect(() => {
@@ -80,6 +85,18 @@ const PlaceDetail = () => {
         description, related_places, age_limit, location 
     } = placeData;
 
+    // Helper function to reload reviews
+    const fetchReviews = async () => {
+        try {
+            const reviewsResponse = await axios.get(`http://localhost:3000/api/reviews/place/${id}?limit=2`);
+            setReviews(reviewsResponse.data.data);
+            // Refresh stats box khi review được submit/update
+            setRefreshStatsKey(prev => prev + 1);
+        } catch (err) {
+            console.error('Error loading reviews:', err);
+        }
+    };
+
     return (
         <Box sx={{ bgcolor: "#f5f5f5", minHeight: "100vh", py: 4 }}>
             <Container maxWidth="xl" sx={{ ml: 6 }}>
@@ -110,58 +127,39 @@ const PlaceDetail = () => {
                             <Typography variant="body1" color="text.secondary">{description}</Typography>
                         </Box>
                         
-                        {/* Mục 7 & 8: Đánh giá & Bình luận */}
+                        {/* ĐÁNH GIÁ  */}
                         <Box sx={{ mt: 4 }}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Typography variant="h6" fontWeight={600}>
-                                    レビュー・コメント
-                                </Typography>
-                                <Chip 
-                                    label={`スコア: ${rating} / 5.0 (${total_reviews} 件のレビュー)`} 
-                                    color="primary" 
-                                    sx={{ fontWeight: 'bold' }}
-                                />
-                            </Stack>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            <Typography variant="h6" fontWeight={700}>
+                            レビュー
+                            </Typography>
 
-                            <Divider sx={{ mt: 2, mb: 3 }}/>
+                            {/* Nút mở popup đánh giá */}
+                            <Button 
+                                variant="outlined" 
+                                size="small" 
+                                onClick={() => {
+                                    const userStr = getCookie('user');
+                                    if (!userStr) {
+                                        alert('レビューを書くにはログインしてください');
+                                        return;
+                                    }
+                                    setOpenReviewDialog(true);
+                                }}
+                            >
+                            評価する
+                            </Button>
+                        </Stack>
 
-                            {/* Mục 8: Danh sách bình luận */}
-                            <Stack spacing={3}>
-                                {reviews.length > 0 ? (
-                                    reviews.map((review) => (
-                                        <Box key={review._id}>
-                                            <Stack direction="row" spacing={2} alignItems="flex-start">
-                                                {/* Avatar Reviewer */}
-                                                <Avatar src={review.user_id?.avatar} alt={review.user_id?.fullName} />
-                                                
-                                                <Box>
-                                                    <Typography variant="subtitle2" fontWeight={600}>
-                                                        {review.user_id?.fullName || '匿名ユーザー'}
-                                                    </Typography>
-                                                    {/* Rating Stars */}
-                                                    <Typography variant="caption" color="gold">
-                                                        {'⭐'.repeat(review.rating)}
-                                                    </Typography>
-                                                    <Typography variant="body2" sx={{ mt: 1 }}>
-                                                        {review.comment}
-                                                    </Typography>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        日付: {new Date(review.created_at).toLocaleDateString()}
-                                                    </Typography>
-                                                </Box>
-                                            </Stack>
-                                        </Box>
-                                    ))
-                                ) : (
-                                    <Typography variant="body2" color="text.secondary">
-                                        まだレビューがありません。最初のレビューを書きましょう！
-                                    </Typography>
-                                )}
+                        {/* Review Stats Section */}
+                        <Box sx={{ mt: 3 }}>
+                            <ReviewStatsSection placeId={id} refreshTrigger={refreshStatsKey} />
+                        </Box>
 
-                                <Button variant="outlined" sx={{ alignSelf: 'flex-start', textTransform: 'none', mt: 3 }}>
-                                    すべての{total_reviews}件のコメントを見る
-                                </Button>
-                            </Stack>
+                        <Divider sx={{ mt: 3, mb: 3 }} />
+
+                        {/* Comment input + list comments */}
+                        <CommentSection placeId={id} placeName={name} />
                         </Box>
                     </Grid>
 
@@ -297,6 +295,17 @@ const PlaceDetail = () => {
                         </Stack>
                     </Grid>
                 </Grid>
+
+                {/* Review Dialog */}
+                <ReviewDialog 
+                    open={openReviewDialog}
+                    onClose={() => setOpenReviewDialog(false)}
+                    placeId={id}
+                    onReviewSuccess={() => {
+                        // Reload reviews after successful submission
+                        fetchReviews();
+                    }}
+                />
             </Container>
         </Box>
     );

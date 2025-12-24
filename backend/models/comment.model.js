@@ -13,6 +13,7 @@ const commentSchema = new mongoose.Schema(
       required: true,
     },
     content: { type: String, required: true }, // Nội dung comment
+    review_id: { type: mongoose.Schema.Types.ObjectId, ref: "Review", default: null },
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
