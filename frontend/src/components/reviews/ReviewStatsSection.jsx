@@ -62,49 +62,47 @@ const ReviewStatsSection = ({ placeId, refreshTrigger }) => {
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-            <Grid container spacing={3} alignItems="flex-start">
-                {/* Column 1: 平均評価 */}
-                <Grid item xs={12} sm={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="h2" fontWeight={800}>
-                            {avgRating.toFixed(1)}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                            / 5.0
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                            ({totalReviews} 件)
-                        </Typography>
-                    </Box>
-                </Grid>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+                {/* Left: Rating */}
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h2" fontWeight={800}>
+                        {avgRating.toFixed(1)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                        / 5.0
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        ({totalReviews} 件)
+                    </Typography>
+                </Box>
 
-                {/* Column 2+3: レビューを見る (クリッカブル) */}
-                <Grid item xs={12} sm={8}>
-                    <Box
-                        onClick={() => setOpenDetailsDialog(true)}
-                        sx={{
-                            cursor: 'pointer',
-                            p: 2,
-                            borderRadius: 1,
-                            bgcolor: '#f9f9f9',
-                            '&:hover': { bgcolor: '#f0f0f0' },
-                            transition: 'background-color 0.2s',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                    >
-                        <Typography variant="body1" fontWeight={600} color="primary">
-                            レビューを見る →
-                        </Typography>
-                    </Box>
-                </Grid>
-            </Grid>
+                {/* Right: Button */}
+                <Box
+                    onClick={() => setOpenDetailsDialog(true)}
+                    sx={{
+                        cursor: 'pointer',
+                        borderRadius: 1,
+                        bgcolor: '#f9f9f9',
+                        '&:hover': { bgcolor: '#f0f0f0' },
+                        transition: 'background-color 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 860,
+                        height: 110,
+                        flexShrink: 0,
+                    }}
+                >
+                    <Typography variant="body1" fontWeight={600} color="primary">
+                        レビューを見る →
+                    </Typography>
+                </Box>
+            </Box>
+
 
             {/* 詳細ダイアログ */}
             <Dialog open={openDetailsDialog} onClose={() => setOpenDetailsDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ fontWeight: 700 }}>
+                <DialogTitle sx={{ fontWeight: 700, textAlign: 'center' }}>
                     レビューの詳細
                 </DialogTitle>
                 <DialogContent sx={{ pt: 3 }}>

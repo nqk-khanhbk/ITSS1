@@ -163,7 +163,7 @@ const ReviewDialog = ({ open, onClose, placeId, onReviewSuccess }) => {
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-            <DialogTitle sx={{ fontWeight: 700, fontSize: '1.3rem' }}>
+            <DialogTitle sx={{ fontWeight: 700, fontSize: '1.3rem', textAlign: 'center' }}>
                 {existingReview ? 'レビューを編集' : 'レビューを送信'}
             </DialogTitle>
 
