@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import {
     Dialog,
     DialogTitle,
@@ -102,7 +103,7 @@ const ReviewDialog = ({ open, onClose, placeId, onReviewSuccess }) => {
 
     const handleSubmit = async () => {
         if (!isFormValid()) {
-            setError('星評価を選択するか、すべてのサービスレビューを選択してください');
+            setError('星評価またはサービスレビューを入力してください');
             return;
         }
 
@@ -110,10 +111,18 @@ const ReviewDialog = ({ open, onClose, placeId, onReviewSuccess }) => {
             setLoading(true);
             setError(null);
 
+            // Lọc chỉ giữ facilities đã được chọn (không rỗng)
+            const filteredFacilities = {};
+            FACILITY_KEYS.forEach(key => {
+                if (facilities[key] !== '') {
+                    filteredFacilities[key] = facilities[key];
+                }
+            });
+
             const payload = {
                 place_id: placeId,
                 rating: rating,
-                facilities: facilities
+                facilities: filteredFacilities
             };
 
             let response;
@@ -134,7 +143,7 @@ const ReviewDialog = ({ open, onClose, placeId, onReviewSuccess }) => {
             }
 
             if (response.data.success) {
-                alert(existingReview ? 'レビューが更新されました' : 'レビューが送信されました');
+                toast.success(existingReview ? 'レビューが更新されました' : 'レビューが送信されました');
                 if (onReviewSuccess) {
                     onReviewSuccess();
                 }
