@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import {
     Box,
     Stack,
@@ -97,12 +98,12 @@ const CommentSection = ({ placeId, placeName }) => {
     // Tạo comment mới
     const handleCreateComment = async () => {
         if (!newComment.trim()) {
-            alert('Vui lòng nhập nội dung bình luận');
+            toast.error('コメント内容を入力してください。');
             return;
         }
 
         if (!currentUser) {
-            alert('Vui lòng đăng nhập để bình luận');
+            toast.error('コメントするにはログインしてください');
             return;
         }
 
@@ -138,7 +139,7 @@ const CommentSection = ({ placeId, placeName }) => {
         } catch (err) {
             console.error('Create comment error:', err);
             const errorMsg = err.response?.data?.message || err.message || 'Lỗi khi tạo bình luận';
-            alert('Lỗi: ' + errorMsg);
+            toast.error(errorMsg);
         } finally {
             setSubmitting(false);
         }
@@ -167,7 +168,7 @@ const CommentSection = ({ placeId, placeName }) => {
     // Lưu chỉnh sửa
     const handleEditSave = async () => {
         if (!editContent.trim()) {
-            alert('Nội dung không được để trống');
+            toast.error('内容を空欄にすることはできません');
             return;
         }
 
@@ -199,14 +200,14 @@ const CommentSection = ({ placeId, placeName }) => {
                 
                 setEditingId(null);
                 setEditContent('');
-                alert('Cập nhật bình luận thành công!');
+                toast.success('コメントが正常に更新されました！');
             } else {
-                throw new Error(response.data?.message || 'Lỗi không xác định');
+                throw new Error(response.data?.message || '不明なエラー');
             }
         } catch (err) {
             console.error('Update comment error:', err);
-            const errorMsg = err.response?.data?.message || err.message || 'Lỗi khi cập nhật bình luận';
-            alert('Lỗi: ' + errorMsg);
+            const errorMsg = err.response?.data?.message || err.message || 'コメントの更新に失敗しました';
+            toast.error(errorMsg);
         } finally {
             setSubmitting(false);
         }
@@ -247,14 +248,14 @@ const CommentSection = ({ placeId, placeName }) => {
                 
                 setOpenDeleteDialog(false);
                 setDeleteCommentId(null);
-                alert('Xóa bình luận thành công!');
+                toast.success('コメントが正常に削除されました！');
             } else {
-                throw new Error(response.data?.message || 'Lỗi không xác định');
+                throw new Error(response.data?.message || '不明なエラー');
             }
         } catch (err) {
             console.error('Delete comment error:', err);
-            const errorMsg = err.response?.data?.message || err.message || 'Lỗi khi xóa bình luận';
-            alert('Lỗi: ' + errorMsg);
+            const errorMsg = err.response?.data?.message || err.message || 'コメントの削除に失敗しました';
+            toast.error(errorMsg);
         } finally {
             setSubmitting(false);
         }
