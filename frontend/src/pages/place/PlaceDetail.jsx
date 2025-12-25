@@ -110,7 +110,7 @@ const PlaceDetail = () => {
                 <Grid container spacing={3} >
                     
                     {/* Cột Trái (2/3) */}
-                    <Grid item xs={12} md={8} sx={{ minWidth: '60%' }}>
+                    <Grid item xs={12} md={8}>
                         {/* Mục 3: Main Image / Gallery */}
                         <Paper sx={{ height: 450, borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
                             <Box
@@ -164,7 +164,7 @@ const PlaceDetail = () => {
                     </Grid>
 
                     {/* Cột Phải (1/3) */}
-                    <Grid item xs={12} md={4} sx={{ minWidth: '30%'}} >
+                    <Grid item xs={12} md={4} >
                         <Stack spacing={3}> 
                             {/* Mục 4: Thông tin cơ bản & Ticket/Add Favorite */}
                             <Paper sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
