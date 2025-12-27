@@ -23,6 +23,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SearchIcon from "@mui/icons-material/Search";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -200,7 +201,7 @@ export default function Schedule() {
             component={Link}
             to="/schedule/create"
             color="primary"
-            startIcon={<FavoriteBorderIcon />}
+            startIcon={<AddIcon />}
             sx={{
               textTransform: "none",
               borderRadius: 2,
