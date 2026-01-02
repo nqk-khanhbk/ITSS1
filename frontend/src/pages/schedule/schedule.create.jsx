@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './schedule.create.css';
 import { toast } from 'react-toastify';
 
@@ -19,6 +19,22 @@ const ScheduleCreate = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [draggedItem, setDraggedItem] = useState(null);
   const [uploading, setUploading] = useState(false);
+  
+  // Place search states
+  const [placeSearchResults, setPlaceSearchResults] = useState({});
+  const [placeSearchLoading, setPlaceSearchLoading] = useState({});
+  const [activePlaceDropdown, setActivePlaceDropdown] = useState(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.place-search-wrapper')) {
+        setActivePlaceDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Upload image to Cloudinary
   const uploadToCloudinary = async (file) => {
@@ -45,6 +61,61 @@ const ScheduleCreate = () => {
       console.error('Error uploading to Cloudinary:', error);
       throw error;
     }
+  };
+
+  // Search places by keyword
+  const searchPlaces = async (keyword, itemId) => {
+    if (!keyword.trim()) {
+      setPlaceSearchResults(prev => ({ ...prev, [itemId]: [] }));
+      return;
+    }
+
+    setPlaceSearchLoading(prev => ({ ...prev, [itemId]: true }));
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/places/search?keyword=${encodeURIComponent(keyword)}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to search places');
+      }
+
+      const result = await response.json();
+      setPlaceSearchResults(prev => ({
+        ...prev,
+        [itemId]: result.data || []
+      }));
+    } catch (error) {
+      console.error('Error searching places:', error);
+      setPlaceSearchResults(prev => ({ ...prev, [itemId]: [] }));
+    } finally {
+      setPlaceSearchLoading(prev => ({ ...prev, [itemId]: false }));
+    }
+  };
+
+  // Handle place search input change with debounce
+  const handlePlaceSearchChange = (e, itemId) => {
+    const value = e.target.value;
+    updateTimelineItem(itemId, 'placeSearchKeyword', value);
+    updateTimelineItem(itemId, 'selectedPlace', null);
+    updateTimelineItem(itemId, 'placeId', null);
+    setActivePlaceDropdown(itemId);
+    
+    // Debounce search
+    clearTimeout(window.placeSearchTimeout);
+    window.placeSearchTimeout = setTimeout(() => {
+      searchPlaces(value, itemId);
+    }, 300);
+  };
+
+  // Handle place selection
+  const handlePlaceSelect = (itemId, place) => {
+    updateTimelineItem(itemId, 'selectedPlace', place);
+    updateTimelineItem(itemId, 'placeId', place._id);
+    updateTimelineItem(itemId, 'placeSearchKeyword', place.name);
+    setActivePlaceDropdown(null);
+    setPlaceSearchResults(prev => ({ ...prev, [itemId]: [] }));
   };
 
   // Handle drag start
@@ -101,7 +172,9 @@ const ScheduleCreate = () => {
     const newItem = {
       id: Date.now(),
       customPlaceName: '',
-      placeLink: '',
+      placeSearchKeyword: '',
+      selectedPlace: null,
+      placeId: null,
       startTime: '',
       endTime: '',
       image: null,
@@ -124,12 +197,12 @@ const ScheduleCreate = () => {
 
   // Update timeline item
   const updateTimelineItem = (id, field, value) => {
-    setFormData({
-      ...formData,
-      items: formData.items.map(item =>
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.map(item =>
         item.id === id ? { ...item, [field]: value } : item
       )
-    });
+    }));
   };
 
   // Handle image upload
@@ -172,20 +245,6 @@ const ScheduleCreate = () => {
     });
   };
 
-  // Extract place_id from placeLink
-  const extractPlaceId = (placeLink) => {
-    if (!placeLink) return null;
-    
-    try {
-      // Match pattern: /places/[id] or just the ID
-      const match = placeLink.match(/\/places\/([a-zA-Z0-9]+)/) || placeLink.match(/^([a-zA-Z0-9]+)$/);
-      return match ? match[1] : null;
-    } catch (error) {
-      console.error('Error extracting place_id:', error);
-      return null;
-    }
-  };
-
   // Handle submit
   const handleSubmit = async () => {
     try {
@@ -210,10 +269,8 @@ const ScheduleCreate = () => {
         cover_image: formData.coverImage || '',
         tags: formData.tags,
         items: formData.items.map((item, index) => {
-          const placeId = extractPlaceId(item.placeLink);
-          
           return {
-            place_id: placeId, // Lấy từ placeLink
+            place_id: item.placeId || null, // Lấy từ selectedPlace
             custom_place_name: item.customPlaceName,
             start_time: item.startTime,
             end_time: item.endTime,
@@ -401,17 +458,67 @@ const ScheduleCreate = () => {
                     <input
                       type="text"
                       className="place-name-input"
-                      placeholder="Công viên nước Hồ Tây"
+                      placeholder="カスタム名（オプション）"
                       value={item.customPlaceName}
                       onChange={(e) => updateTimelineItem(item.id, 'customPlaceName', e.target.value)}
                     />
-                    <input
-                      type="url"
-                      className="place-link-input"
-                      placeholder="リンクを入力"
-                      value={item.placeLink}
-                      onChange={(e) => updateTimelineItem(item.id, 'placeLink', e.target.value)}
-                    />
+                    <div className="place-search-wrapper">
+                      <input
+                        type="text"
+                        className="place-search-input"
+                        placeholder="場所を検索..."
+                        value={item.placeSearchKeyword || ''}
+                        onChange={(e) => handlePlaceSearchChange(e, item.id)}
+                        onFocus={() => setActivePlaceDropdown(item.id)}
+                      />
+                      {item.selectedPlace && (
+                        <span className="selected-place-badge">
+                          ✓ {item.selectedPlace.name}
+                          <button
+                            type="button"
+                            className="clear-place-btn"
+                            onClick={() => {
+                              updateTimelineItem(item.id, 'selectedPlace', null);
+                              updateTimelineItem(item.id, 'placeId', null);
+                              updateTimelineItem(item.id, 'placeSearchKeyword', '');
+                            }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      )}
+                      {activePlaceDropdown === item.id && (
+                        <div className="place-search-dropdown">
+                          {placeSearchLoading[item.id] ? (
+                            <div className="dropdown-loading">検索中...</div>
+                          ) : placeSearchResults[item.id]?.length > 0 ? (
+                            placeSearchResults[item.id].map((place) => (
+                              <div
+                                key={place._id}
+                                className="place-search-item"
+                                onClick={() => handlePlaceSelect(item.id, place)}
+                              >
+                                <div className="place-item-info">
+                                  <span className="place-item-name">{place.name}</span>
+                                  {place.address && (
+                                    <span className="place-item-address">{place.address}</span>
+                                  )}
+                                </div>
+                                {place.thumbnail && (
+                                  <img
+                                    src={place.thumbnail}
+                                    alt={place.name}
+                                    className="place-item-thumb"
+                                  />
+                                )}
+                              </div>
+                            ))
+                          ) : item.placeSearchKeyword?.trim() ? (
+                            <div className="dropdown-empty">結果が見つかりません</div>
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="timeline-item-body">
@@ -535,7 +642,18 @@ const ScheduleCreate = () => {
               type="date"
               className="form-input"
               value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
+              onChange={(e) => {
+                const selectedDate = new Date(e.target.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                  toast.warning('過去の日付は選択できません');
+                  return;
+                }
+                setFormData({ ...formData, date: e.target.value });
+              }}
             />
           </div>
 
