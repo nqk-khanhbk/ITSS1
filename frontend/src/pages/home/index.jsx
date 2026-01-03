@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Box, IconButton, Stack, Typography, Container, Grid, Card, CardMedia, CardContent, Chip, Button } from '@mui/material'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
@@ -6,6 +7,8 @@ import LocationOnIcon from '@mui/icons-material/LocationOn'
 import ChildCareIcon from '@mui/icons-material/ChildCare'
 
 function Home() {
+  const navigate = useNavigate()
+  
   // Mock data 近くの場所
   const nearbyPlaces = [
     {
@@ -364,6 +367,7 @@ function Home() {
             <Button
               variant="outlined"
               size="large"
+              onClick={() => navigate('/search')}
               sx={{
                 borderRadius: 8,
                 px: 5,
@@ -510,6 +514,7 @@ function Home() {
             <Button
               variant="outlined"
               size="large"
+              onClick={() => navigate('/search')}
               sx={{
                 borderRadius: 8,
                 px: 5,
