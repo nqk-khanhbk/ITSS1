@@ -646,7 +646,7 @@ function ScheduleDetail() {
         </Stack>
         <Grid container spacing={3}>
           {/* Timeline */}
-          <Grid item xs={12} md={9} sx={{ flex: 1 }}>
+          <Grid item xs={12} md={8} sx={{ flex: 2 }}>
             <Box>
               {/* Timeline Items (giao diện cũ) */}
               {scheduleData.timeline.map((item, index) => (
@@ -714,7 +714,7 @@ function ScheduleDetail() {
             </Box>
           </Grid>
           {/* Cột phải - Thông tin & Bản đồ */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4} sx={{ flex: 1 }}>
             <Stack spacing={3}>
               {/* Tổng quan */}
               <Paper sx={{ p: 3 }}>
