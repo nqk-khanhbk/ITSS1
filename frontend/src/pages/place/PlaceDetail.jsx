@@ -140,7 +140,7 @@ const PlaceDetail = () => {
 
   return (
     <Box sx={{ bgcolor: "#f5f5f5", minHeight: "100vh", py: 4 }}>
-      <Container maxWidth="xl" sx={{ ml: 6 }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 3, sm: 6, md: 10 } }}>
         {/* Mục 1: Tiêu đề và Rating */}
         <Stack direction="row" alignItems="flex-end" spacing={2} sx={{ mb: 2 }}>
           <Typography variant="h4" fontWeight={700}>
@@ -149,9 +149,9 @@ const PlaceDetail = () => {
         </Stack>
 
         {/* 2. Body - Chia 2 cột */}
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr", md: "2fr 1fr" }, gap: 3 }}>
           {/* Cột Trái (2/3) */}
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={8} sx={{ minWidth: 0 }}>
             {/* Mục 3: Main Image / Gallery */}
             <Paper
               sx={{
@@ -227,8 +227,8 @@ const PlaceDetail = () => {
           </Grid>
 
           {/* Cột Phải (1/3) */}
-          <Grid item xs={12} md={4}>
-            <Stack spacing={3}>
+          <Grid item xs={12} md={4} sx={{ minWidth: 0 }}>
+            <Stack spacing={3} sx={{ height: "100%" }}>
               {/* Mục 4: Thông tin cơ bản & Ticket/Add Favorite */}
               <Paper
                 sx={{

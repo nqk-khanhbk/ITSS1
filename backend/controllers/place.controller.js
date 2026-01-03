@@ -18,10 +18,10 @@ const formatRating = (rating) => {
  */
 const parseOpeningTime = (timeStr) => {
   if (!timeStr || timeStr.toLowerCase() === "closed") return null;
-  
+
   const match = timeStr.match(/(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})/);
   if (!match) return null;
-  
+
   return {
     open: parseInt(match[1]),
     close: parseInt(match[3])
@@ -37,14 +37,14 @@ const parseOpeningTime = (timeStr) => {
  */
 const checkOpenTime = (openingHours, timeFilter) => {
   if (!openingHours) return false;
-  
+
   // Lấy tất cả các ngày có giờ mở cửa
   const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-  
+
   for (const day of days) {
     const time = parseOpeningTime(openingHours[day]);
     if (!time) continue;
-    
+
     switch (timeFilter) {
       case 'morning':
         if (time.open < 12) return true;
@@ -68,10 +68,10 @@ const checkOpenTime = (openingHours, timeFilter) => {
  */
 const checkOpenWeekend = (openingHours) => {
   if (!openingHours) return false;
-  
+
   const satTime = parseOpeningTime(openingHours.sat);
   const sunTime = parseOpeningTime(openingHours.sun);
-  
+
   return satTime !== null || sunTime !== null;
 };
 
@@ -81,12 +81,12 @@ exports.searchPlaces = async (req, res) => {
   try {
     const {
       // Các filter cũ
-      keyword, 
-      category_ids, 
-      amenity_ids, 
+      keyword,
+      category_ids,
+      amenity_ids,
       age_ranges,
       lat, lng, radius,
-      
+
       // Các filter mới
       districts,           // Quận/Huyện: "Hoàn Kiếm,Ba Đình,Cầu Giấy"
       price_filter,        // "free", "under_100k", "100k_300k", "over_300k"
@@ -98,10 +98,10 @@ exports.searchPlaces = async (req, res) => {
       crowd_level,         // "low", "medium", "high"
       min_rating,          // "4", "4.5", "5"
       sort_by,             // "rating", "reviews", "price_asc", "price_desc"
-      
+
       // Pagination
-      page = 1, 
-      limit = 9, 
+      page = 1,
+      limit = 6,
       view = 'list'
     } = req.query;
 
@@ -213,7 +213,7 @@ exports.searchPlaces = async (req, res) => {
       const userLat = parseFloat(lat);
       const userLng = parseFloat(lng);
       let radiusInKm = parseFloat(radius);
-      
+
       // Map giá trị từ frontend
       if (radius === 'over_10km') {
         radiusInKm = 50; // Tìm trong 50km
@@ -288,14 +288,14 @@ exports.searchPlaces = async (req, res) => {
 
     // Lọc theo thời gian mở cửa
     if (open_time) {
-      filteredPlaces = filteredPlaces.filter(place => 
+      filteredPlaces = filteredPlaces.filter(place =>
         checkOpenTime(place.opening_hours, open_time)
       );
     }
 
     // Lọc theo mở cửa cuối tuần
     if (open_weekend === 'true') {
-      filteredPlaces = filteredPlaces.filter(place => 
+      filteredPlaces = filteredPlaces.filter(place =>
         checkOpenWeekend(place.opening_hours)
       );
     }

@@ -64,7 +64,7 @@ const ReviewStatsSection = ({ placeId, refreshTrigger }) => {
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
                 {/* Left: Rating */}
-                <Box sx={{ textAlign: 'center' }}>
+                <Box sx={{ textAlign: 'center', pl: 4 }}>
                     <Typography variant="h2" fontWeight={800}>
                         {avgRating.toFixed(1)}
                     </Typography>
@@ -88,7 +88,7 @@ const ReviewStatsSection = ({ placeId, refreshTrigger }) => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: 860,
+                        width: 660,
                         height: 110,
                         flexShrink: 0,
                     }}
