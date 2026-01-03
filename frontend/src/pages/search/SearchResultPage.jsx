@@ -52,7 +52,7 @@ const SearchResultPage = () => {
                 }
 
                 params.append('page', page);
-                params.append('limit', 9);
+                params.append('limit', 6);
 
 
                 // BƯỚC 4: Xây dựng URL cuối cùng
