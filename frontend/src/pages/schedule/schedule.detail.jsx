@@ -190,24 +190,33 @@ function ScheduleDetail() {
               locations: rawData.items.length,
               note: rawData.note || ""
             },
-            timeline: rawData.items.map((item, index) => ({
-              id: item._id,
-              type: "location",
-              name: item.custom_place_name || "スポット",
-              time: item.start_time,
-              startTime: item.start_time,
-              endTime: item.end_time,
-              duration: calculateDuration(item.start_time, item.end_time),
-              transport: mapTransport(item.transport),
-              transportText: item.transport || "",
-              image: item.image || "https://via.placeholder.com/800",
-              openingHours: "N/A",
-              estimatedCost: formatPriceRange(item.price_range),
-              description: item.description || "",
-              note: item.caution || "",
-              hasWarning: !!item.caution,
-              placeId: item.place_id, // Add place_id for navigation
-            })),
+            timeline: rawData.items.map((item, index) => {
+              // Calculate travel duration to next location
+              let travelDuration = "";
+              if (index < rawData.items.length - 1) {
+                const nextItem = rawData.items[index + 1];
+                travelDuration = calculateDuration(item.end_time, nextItem.start_time);
+              }
+              
+              return {
+                id: item._id,
+                type: "location",
+                name: item.custom_place_name || "スポット",
+                time: item.start_time,
+                startTime: item.start_time,
+                endTime: item.end_time,
+                duration: travelDuration, // Travel time to next location
+                transport: mapTransport(item.transport),
+                transportText: item.transport || "",
+                image: item.image || "https://via.placeholder.com/800",
+                openingHours: "N/A",
+                estimatedCost: formatPriceRange(item.price_range),
+                description: item.description || "",
+                note: item.caution || "",
+                hasWarning: !!item.caution,
+                placeId: item.place_id, // Add place_id for navigation
+              };
+            }),
             warnings: rawData.items
               .filter(item => item.caution)
               .map(item => ({
