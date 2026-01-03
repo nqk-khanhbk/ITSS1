@@ -658,7 +658,7 @@ function ScheduleDetail() {
                     <Box
                       sx={{
                         position: "absolute",
-                        left: 20,
+                        left: 40,
                         top: 50,
                         bottom: -20,
                         width: 2,
@@ -666,52 +666,6 @@ function ScheduleDetail() {
                         zIndex: 0,
                       }}
                     />
-                  )}
-
-                  {/* Transport icon between locations */}
-                  {index < scheduleData.timeline.length - 1 && scheduleData.timeline[index + 1].transport && (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        left: 0,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        zIndex: 2,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 0.5,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: "50%",
-                          bgcolor: "#e3f2fd",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {getTransportIcon(scheduleData.timeline[index + 1].transport)}
-                      </Box>
-                      {scheduleData.timeline[index + 1].duration && (
-                        <Typography 
-                          variant="caption" 
-                          color="text.secondary" 
-                          sx={{ 
-                            fontSize: "0.65rem",
-                            whiteSpace: "nowrap",
-                            bgcolor: "rgba(255,255,255,0.9)",
-                            px: 0.5,
-                            borderRadius: 0.5,
-                          }}
-                        >
-                          {scheduleData.timeline[index + 1].duration}
-                        </Typography>
-                      )}
-                    </Box>
                   )}
 
                   <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
