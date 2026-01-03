@@ -171,10 +171,10 @@ function ScheduleDetail() {
       try {
         setLoading(true);
         const response = await axios.get(`${API_BASE_URL}/day-plans/${id}`);
-        
+
         if (response.data && response.data.data) {
           const rawData = response.data.data;
-          
+
           // Transform API response to match component's expected structure
           const transformedData = {
             id: rawData._id,
@@ -215,36 +215,36 @@ function ScheduleDetail() {
                 note: item.caution
               }))
           };
-          
+
           setScheduleData(transformedData);
-          
+
           // Fetch related places
           const placeIds = rawData.items
             .map(item => item.place_id)
             .filter(placeId => placeId); // Filter out null/undefined
-          
+
           if (placeIds.length > 0) {
             try {
-              const placesPromises = placeIds.map(placeId => 
+              const placesPromises = placeIds.map(placeId =>
                 axios.get(`${API_BASE_URL}/places/${placeId}`)
               );
               const placesResponses = await Promise.all(placesPromises);
               const places = placesResponses
                 .map(res => res.data?.data)
                 .filter(place => place); // Filter out failed requests
-              
+
               // Calculate age range intersection
               let ageRangeText = rawData.target_age || "すべての年齢";
               if (places.length > 0) {
                 const ageRanges = places
                   .filter(place => place.age_limit && place.age_limit.min !== undefined && place.age_limit.max !== undefined)
                   .map(place => place.age_limit);
-                
+
                 if (ageRanges.length > 0) {
                   // Find intersection of all age ranges
                   const minAge = Math.max(...ageRanges.map(range => range.min));
                   const maxAge = Math.min(...ageRanges.map(range => range.max));
-                  
+
                   if (minAge <= maxAge) {
                     if (minAge === 0 && maxAge >= 100) {
                       ageRangeText = "すべての年齢";
@@ -258,11 +258,11 @@ function ScheduleDetail() {
                   }
                 }
               }
-              
+
               // Update transformedData with calculated age range
               transformedData.overview.age = ageRangeText;
               setScheduleData(transformedData);
-              
+
               // Set related places for display with coordinates
               const relatedPlacesData = places.map(place => ({
                 id: place._id,
@@ -272,21 +272,21 @@ function ScheduleDetail() {
                 location: place.location // Include location coordinates
               }));
               setRelatedPlaces(relatedPlacesData);
-              
+
               // Calculate map center from places with valid coordinates
               const placesWithCoords = relatedPlacesData.filter(
-                place => place.location?.coordinates && 
-                Array.isArray(place.location.coordinates) && 
-                place.location.coordinates.length === 2
+                place => place.location?.coordinates &&
+                  Array.isArray(place.location.coordinates) &&
+                  place.location.coordinates.length === 2
               );
-              
+
               if (placesWithCoords.length > 0) {
-                const avgLat = placesWithCoords.reduce((sum, place) => 
+                const avgLat = placesWithCoords.reduce((sum, place) =>
                   sum + place.location.coordinates[1], 0) / placesWithCoords.length;
-                const avgLng = placesWithCoords.reduce((sum, place) => 
+                const avgLng = placesWithCoords.reduce((sum, place) =>
                   sum + place.location.coordinates[0], 0) / placesWithCoords.length;
                 setMapCenter([avgLat, avgLng]);
-                
+
                 // Adjust zoom based on spread of locations
                 if (placesWithCoords.length === 1) {
                   setMapZoom(15);
@@ -298,7 +298,7 @@ function ScheduleDetail() {
               console.error('Error fetching related places:', err);
             }
           }
-          
+
           // Check like status if user logged in
           try {
             const userStr = getCookie('user');
@@ -383,7 +383,9 @@ function ScheduleDetail() {
       "Xe máy": "bike",
       "Đi bộ": "walk",
       "Xe bus": "bus",
-      "Xe đạp": "bike"
+      "Xe đạp": "bike",
+      "Grab": "bike",
+      "Taxi": "car"
     };
     return transportMap[transport] || "walk";
   };
@@ -469,34 +471,34 @@ function ScheduleDetail() {
               {scheduleData.title}
             </Typography>
           </Stack>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <IconButton
-                      onClick={async () => {
-                        const userStr = getCookie('user');
-                        if (!userStr) {
-                          return navigate('/login');
-                        }
-                        const user = JSON.parse(userStr);
-                        try {
-                          if (liked) {
-                            await unlikeDayPlan(user._id, id);
-                            setLiked(false);
-                            setLikesCount((c) => Math.max(0, c - 1));
-                          } else {
-                            await likeDayPlan(user._id, id);
-                            setLiked(true);
-                            setLikesCount((c) => c + 1);
-                          }
-                        } catch (err) {
-                          console.error('Like toggle error', err);
-                        }
-                      }}
-                      sx={{ color: liked ? "#f44336" : "inherit" }}
-                    >
-                      {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                    </IconButton>
-                    <Typography variant="body2" color="text.secondary">{likesCount}</Typography>
-                  </Stack>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <IconButton
+              onClick={async () => {
+                const userStr = getCookie('user');
+                if (!userStr) {
+                  return navigate('/login');
+                }
+                const user = JSON.parse(userStr);
+                try {
+                  if (liked) {
+                    await unlikeDayPlan(user._id, id);
+                    setLiked(false);
+                    setLikesCount((c) => Math.max(0, c - 1));
+                  } else {
+                    await likeDayPlan(user._id, id);
+                    setLiked(true);
+                    setLikesCount((c) => c + 1);
+                  }
+                } catch (err) {
+                  console.error('Like toggle error', err);
+                }
+              }}
+              sx={{ color: liked ? "#f44336" : "inherit" }}
+            >
+              {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+            </IconButton>
+            <Typography variant="body2" color="text.secondary">{likesCount}</Typography>
+          </Stack>
         </Stack>
 
         {/* Timeline Overview (giao diện cũ) */}
@@ -687,18 +689,64 @@ function ScheduleDetail() {
                       >
                         <LocationOnIcon sx={{ color: "#1976d2" }} />
                       </Box>
-                      {item.transport && (
-                        <Box sx={{ mt: 1 }}>{getTransportIcon(item.transport)}</Box>
-                      )}
-                      {item.duration && (
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                          {item.duration}
-                        </Typography>
-                      )}
                     </Stack>
 
                     {/* Content */}
                     <Box sx={{ flex: 1 }}>
+                      {/* Transport info - hiển thị trước TimelineCard */}
+                      {item.transport && (
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={1.5}
+                          sx={{
+                            mb: 2,
+                            p: 1.5,
+                            bgcolor: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+                            background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+                            borderRadius: 2,
+                            boxShadow: "0 2px 8px rgba(25, 118, 210, 0.15)",
+                            border: "1px solid rgba(25, 118, 210, 0.2)",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: "50%",
+                              bgcolor: "#fff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                            }}
+                          >
+                            {getTransportIcon(item.transport)}
+                          </Box>
+                          <Typography
+                            variant="body2"
+                            fontWeight={600}
+                            sx={{ color: "#1565c0" }}
+                          >
+                            {item.transportText || item.transport}
+                          </Typography>
+                          {item.duration && (
+                            <Chip
+                              icon={<AccessTimeIcon sx={{ fontSize: 16 }} />}
+                              label={item.duration}
+                              size="small"
+                              sx={{
+                                bgcolor: "#fff",
+                                color: "#1976d2",
+                                fontWeight: 500,
+                                "& .MuiChip-icon": {
+                                  color: "#1976d2",
+                                },
+                              }}
+                            />
+                          )}
+                        </Stack>
+                      )}
                       <TimelineCard
                         location={item}
                         onToggleDescription={handleToggleDescription}
@@ -816,9 +864,9 @@ function ScheduleDetail() {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
                       {relatedPlaces
-                        .filter(place => 
-                          place.location?.coordinates && 
-                          Array.isArray(place.location.coordinates) && 
+                        .filter(place =>
+                          place.location?.coordinates &&
+                          Array.isArray(place.location.coordinates) &&
                           place.location.coordinates.length === 2
                         )
                         .map((place, index) => (
@@ -874,8 +922,8 @@ function ScheduleDetail() {
             <Grid container spacing={3}>
               {relatedPlaces.map((place) => (
                 <Grid item xs={12} sm={6} md={3} key={place.id}>
-                  <Card 
-                    sx={{ 
+                  <Card
+                    sx={{
                       cursor: 'pointer',
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       '&:hover': {
