@@ -658,7 +658,7 @@ function ScheduleDetail() {
                     <Box
                       sx={{
                         position: "absolute",
-                        left: 20,
+                        left: 40,
                         top: 50,
                         bottom: -20,
                         width: 2,
